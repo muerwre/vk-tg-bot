@@ -3,7 +3,6 @@ import { TelegramService } from './service/telegram';
 import logger from './service/logger';
 import { VkService } from './service/vk';
 
-
 try {
   const config = prepareConfig()
   const telegramService = new TelegramService(config.telegram)
