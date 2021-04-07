@@ -1,0 +1,21 @@
+{
+  "allowSyntheticDefaultImports": true,
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "outDir": "./dist/",
+    "sourceMap": true,
+    "noImplicitAny": false,
+    "allowSyntheticDefaultImports": true,
+    "module": "commonjs",
+    "target": "es6",
+    "baseUrl": ".",
+    "paths": {},
+    "lib": ["es6"]
+  },
+  "include": [
+    "./**/*",
+    "./custom.d.ts"
+  ]
+}
