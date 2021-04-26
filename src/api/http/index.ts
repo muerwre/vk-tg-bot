@@ -7,6 +7,7 @@ import logger from "../../service/logger";
 import { TelegramService } from "../../service/telegram";
 import http from "http";
 import { WebhookConfig } from "../../config/types";
+import url, { URL } from "url";
 
 export class HttpApi {
   app: Express;
@@ -37,9 +38,10 @@ export class HttpApi {
     this.app.use(bodyParser.json());
     this.app.use(express.json());
 
-    if (this?.webhook?.enabled && this?.webhook?.path) {
-      logger.info(`using webhook at ${this.webhook.path}`);
-      this.app.post(props.webhook.url, this.handleWebhook);
+    if (this?.webhook?.enabled && this?.webhook?.url) {
+      const url = new URL(this.webhook.url);
+      logger.info(`using webhook at ${url.pathname}`);
+      this.app.post(url.pathname, this.handleWebhook);
     }
   }
 

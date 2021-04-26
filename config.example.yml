@@ -3,8 +3,7 @@ http:
 telegram:
   key: ''
 webhook:
-  path: /webhook
-  url: https://something.org:123123/webhook
+  url: https://something.org:65534/webhook
   enabled: false
 logger:
   level: info

@@ -4,7 +4,6 @@ import { HttpConfig } from "../api/http/types";
 import { LoggerConfig } from "../service/logger/types";
 
 export interface WebhookConfig {
-  path?: string;
   url?: string;
   enabled?: boolean;
 }
