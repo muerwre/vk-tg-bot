@@ -15,6 +15,6 @@ const config = userConfig && mergeRight(defaultConfig, userConfig) || defaultCon
 
 export default function prepareConfig() {
   validateConfig(config)
-  logger.debug('config is ok:', config)
+  logger.debug('config is ok: ', config)
   return config
 }

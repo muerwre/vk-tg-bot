@@ -5,7 +5,7 @@ import { VkService } from './service/vk';
 
 try {
   const config = prepareConfig()
-  const telegramService = new TelegramService(config.telegram)
+  const telegramService = new TelegramService(config.telegram).start()
   const vkService = new VkService(config.vk)
 
 } catch (e) {
