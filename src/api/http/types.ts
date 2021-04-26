@@ -1,3 +1,7 @@
 export interface HttpConfig extends Record<string, any> {
-  port: number
+  port: number;
+  webhook?: {
+    url?: string;
+    enabled?: boolean;
+  };
 }

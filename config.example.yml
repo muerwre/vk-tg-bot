@@ -3,6 +3,8 @@ http:
 telegram:
   key: ''
   webhookUrl: http://localhost:3002/webhook
+logger:
+  level: info
 #vk:
 #  groups:
 #    - id: 0

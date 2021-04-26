@@ -1,17 +1,16 @@
-import { TelegramConfig } from './types';
-import { Telegraf } from 'telegraf';
-import logger from '../logger';
+import { TelegramConfig } from "./types";
+import { Telegraf } from "telegraf";
+import logger from "../logger";
+import { Response } from "express";
+import { Update } from "typegram";
+import loggerTgMiddleware from "../logger/tg";
 
 // import SocksProxyAgent from 'socks-proxy-agent';
 
 export class TelegramService {
-  bot: Telegraf
+  public readonly bot: Telegraf;
 
   constructor(private props: TelegramConfig) {
-    if (!props.key) {
-      throw new Error('Telegram api key not found. Get it from bot father')
-    }
-
     // const agent = (CONFIG.PROXY && new SocksProxyAgent(CONFIG.PROXY)) || null;
     const options = {
       channelMode: true,
@@ -22,18 +21,28 @@ export class TelegramService {
     };
 
     this.bot = new Telegraf(props.key, options);
+    this.bot.use(loggerTgMiddleware);
 
-    process.once('SIGINT', () => this.bot.stop('SIGINT'))
-    process.once('SIGTERM', () => this.bot.stop('SIGTERM'))
-
-    logger.info('Telegram service started')
+    process.once("SIGINT", () => this.bot.stop("SIGINT"));
+    process.once("SIGTERM", () => this.bot.stop("SIGTERM"));
   }
 
-  start() {
-    if (!this.bot) {
-      throw new Error('Not initialized')
-    }
+  /**
+   * Connects to telegram
+   */
+  public async start() {
+    await this.bot.telegram.deleteWebhook().then(
+      () => this.bot.launch(),
+      () => this.bot.launch()
+    );
 
-    return this.bot.launch()
+    logger.info("telegram service started");
+  }
+
+  /**
+   * Handles webhook updates
+   */
+  public async handleUpdate(req: Update, res: Response) {
+    return this.bot.handleUpdate(req, res);
   }
 }
