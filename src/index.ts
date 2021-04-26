@@ -14,7 +14,12 @@ async function main() {
     const telegramApi = new TelegramApi(telegram).listen();
     await telegram.start();
 
-    const httpApi = new HttpApi(config.http, telegram, vkService).listen();
+    const httpApi = new HttpApi(
+      config.http,
+      telegram,
+      vkService,
+      config.webhook
+    ).listen();
   } catch (e) {
     logger.error(e.message);
   }

@@ -6,6 +6,7 @@ import loggerHttpMiddleware from "../../service/logger/http";
 import logger from "../../service/logger";
 import { TelegramService } from "../../service/telegram";
 import http from "http";
+import { WebhookConfig } from "../../config/types";
 
 export class HttpApi {
   app: Express;
@@ -13,7 +14,8 @@ export class HttpApi {
   constructor(
     private props: HttpConfig,
     private telegram: TelegramService,
-    private vk: VkService
+    private vk: VkService,
+    private webhook?: WebhookConfig
   ) {
     this.app = express();
     this.app.use(express.json());
@@ -35,8 +37,8 @@ export class HttpApi {
     this.app.use(bodyParser.json());
     this.app.use(express.json());
 
-    if (props?.webhook?.enabled && props?.webhook?.url) {
-      logger.info(`using webhook at ${props.webhook.url}`);
+    if (this?.webhook?.enabled && this?.webhook?.path) {
+      logger.info(`using webhook at ${this.webhook.path}`);
       this.app.post(props.webhook.url, this.handleWebhook);
     }
   }

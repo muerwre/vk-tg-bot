@@ -2,7 +2,10 @@ http:
   port: 3002
 telegram:
   key: ''
-  webhookUrl: http://localhost:3002/webhook
+webhook:
+  path: /webhook
+  url: https://something.org:123123/webhook
+  enabled: false
 logger:
   level: info
 #vk:
