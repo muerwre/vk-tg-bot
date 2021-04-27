@@ -32,7 +32,9 @@ export class TelegramService {
    * Connects to telegram
    */
   public async start() {
-    if (this.webhook.enabled && this.webhook.url) {
+    const isWebhookEnabled = await this.getWebhookAvailable();
+
+    if (isWebhookEnabled) {
       await this.bot.telegram
         .deleteWebhook()
         .then(() => this.bot.telegram.setWebhook(this.webhook.url))
@@ -61,4 +63,13 @@ export class TelegramService {
   public async handleUpdate(req: Update, res: Response) {
     return this.bot.handleUpdate(req, res);
   }
+
+  /**
+   * Checks webhook availability
+   */
+  private getWebhookAvailable = async (): Promise<boolean> => {
+    const isWebhookEnabled = this.webhook.enabled && this.webhook.url;
+    // TODO: test this.webhook.url with axios instead of 'true'
+    return isWebhookEnabled && true;
+  };
 }
