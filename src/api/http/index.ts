@@ -7,7 +7,8 @@ import logger from "../../service/logger";
 import { TelegramService } from "../../service/telegram";
 import http from "http";
 import { WebhookConfig } from "../../config/types";
-import url, { URL } from "url";
+import { URL } from "url";
+import { corsMiddleware, errorMiddleware } from "./middleware";
 
 export class HttpApi {
   app: Express;
@@ -19,20 +20,9 @@ export class HttpApi {
     private webhook?: WebhookConfig
   ) {
     this.app = express();
+    this.app.use(corsMiddleware);
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: false }));
-    this.app.use((req, res, next) => {
-      res.header("Access-Control-Allow-Origin", "*");
-      res.header(
-        "Access-Control-Allow-Methods",
-        "GET, PUT, POST, DELETE, PATCH"
-      );
-      res.header(
-        "Access-Control-Allow-Headers",
-        "Origin, X-Requested-With, Content-Type, Accept"
-      );
-      next();
-    });
     this.app.use(loggerHttpMiddleware);
 
     this.app.use(bodyParser.json());
@@ -43,6 +33,8 @@ export class HttpApi {
       logger.info(`using webhook at ${url.pathname}`);
       this.app.post(url.pathname, this.handleWebhook);
     }
+
+    this.app.use(errorMiddleware);
   }
 
   /**
@@ -57,7 +49,8 @@ export class HttpApi {
   /**
    * Handles telegram webhooks
    */
-  private async handleWebhook(req: Request, res: Response) {
-    return this.telegram.handleUpdate(req.body, res);
-  }
+  private handleWebhook = async (req: Request, res: Response) => {
+    logger.debug("got message via webhook", req.body);
+    await this.telegram.handleUpdate(req.body, res);
+  };
 }

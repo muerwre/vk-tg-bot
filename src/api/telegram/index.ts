@@ -1,5 +1,4 @@
 import { TelegramService } from "../../service/telegram";
-import logger from "../../service/logger";
 
 export class TelegramApi {
   constructor(private telegram: TelegramService) {}

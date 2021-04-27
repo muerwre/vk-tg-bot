@@ -4,19 +4,20 @@ import logger from "../logger";
 import { Response } from "express";
 import { Update } from "typegram";
 import loggerTgMiddleware from "../logger/tg";
+import { WebhookConfig } from "../../config/types";
 
 // import SocksProxyAgent from 'socks-proxy-agent';
 
 export class TelegramService {
   public readonly bot: Telegraf;
 
-  constructor(private props: TelegramConfig) {
+  constructor(private props: TelegramConfig, private webhook: WebhookConfig) {
     // const agent = (CONFIG.PROXY && new SocksProxyAgent(CONFIG.PROXY)) || null;
-    const options = {
-      channelMode: true,
+    const options: Partial<Telegraf.Options<any>> = {
       telegram: {
+        webhookReply: true,
+        apiMode: "bot",
         // agent, // TODO: add proxy support
-        webhookReply: !!props.webhookUrl,
       },
     };
 
@@ -31,10 +32,25 @@ export class TelegramService {
    * Connects to telegram
    */
   public async start() {
-    await this.bot.telegram.deleteWebhook().then(
-      () => this.bot.launch(),
-      () => this.bot.launch()
-    );
+    if (this.webhook.enabled && this.webhook.url) {
+      await this.bot.telegram
+        .deleteWebhook()
+        .then(() => this.bot.telegram.setWebhook(this.webhook.url))
+        .then(async () => {
+          const info = await this.bot.telegram.getWebhookInfo();
+          if (!info.url) {
+            throw new Error(`telegram hasn't set webhook`);
+          }
+
+          logger.info(`telegram started webhook at ${this.webhook.url}`);
+        })
+        .catch(logger.warn);
+    } else {
+      await this.bot.telegram.deleteWebhook().then(
+        () => this.bot.launch(),
+        () => this.bot.launch()
+      );
+    }
 
     logger.info("telegram service started");
   }
