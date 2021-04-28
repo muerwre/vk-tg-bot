@@ -2,7 +2,7 @@ import extract from "remark-extract-frontmatter";
 import frontmatter from "remark-frontmatter";
 import compiler from "remark-stringify";
 import parser from "remark-parse";
-import unified, { Processor } from "unified";
+import unified from "unified";
 import { parse } from "yaml";
 import toVFile from "to-vfile";
 import path from "path";
