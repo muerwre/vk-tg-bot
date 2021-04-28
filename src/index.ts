@@ -8,18 +8,13 @@ import { HttpApi } from "./api/http";
 async function main() {
   try {
     const config = prepareConfig();
-    const telegram = new TelegramService(config.telegram, config.webhook);
+    const telegram = new TelegramService(config.telegram);
     const vkService = new VkService(config.vk);
 
     const telegramApi = new TelegramApi(telegram).listen();
     await telegram.start();
 
-    const httpApi = new HttpApi(
-      config.http,
-      telegram,
-      vkService,
-      config.webhook
-    ).listen();
+    const httpApi = new HttpApi(config.http, telegram, vkService).listen();
   } catch (e) {
     logger.error(e.message);
   }

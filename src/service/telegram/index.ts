@@ -1,17 +1,17 @@
-import { TelegramConfig } from "./types";
+import { TelegramConfig, WebhookConfig } from "./types";
 import { Telegraf } from "telegraf";
 import logger from "../logger";
 import { Response } from "express";
 import { Update } from "typegram";
 import loggerTgMiddleware from "../logger/tg";
-import { WebhookConfig } from "../../config/types";
 
 // import SocksProxyAgent from 'socks-proxy-agent';
 
 export class TelegramService {
   public readonly bot: Telegraf;
+  public readonly webhook: WebhookConfig = {};
 
-  constructor(private props: TelegramConfig, private webhook: WebhookConfig) {
+  constructor(private props: TelegramConfig) {
     // const agent = (CONFIG.PROXY && new SocksProxyAgent(CONFIG.PROXY)) || null;
     const options: Partial<Telegraf.Options<any>> = {
       telegram: {
@@ -20,6 +20,8 @@ export class TelegramService {
         // agent, // TODO: add proxy support
       },
     };
+
+    this.webhook = props.webhook;
 
     this.bot = new Telegraf(props.key, options);
     this.bot.use(loggerTgMiddleware);

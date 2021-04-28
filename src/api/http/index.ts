@@ -6,19 +6,21 @@ import loggerHttpMiddleware from "../../service/logger/http";
 import logger from "../../service/logger";
 import { TelegramService } from "../../service/telegram";
 import http from "http";
-import { WebhookConfig } from "../../config/types";
 import { URL } from "url";
 import { corsMiddleware, errorMiddleware } from "./middleware";
+import { WebhookConfig } from "../../service/telegram/types";
 
 export class HttpApi {
   app: Express;
+  webhook: WebhookConfig;
 
   constructor(
     private props: HttpConfig,
     private telegram: TelegramService,
-    private vk: VkService,
-    private webhook?: WebhookConfig
+    private vk: VkService
   ) {
+    this.webhook = this.telegram.webhook;
+
     this.app = express();
     this.app.use(corsMiddleware);
     this.app.use(express.json());
@@ -28,11 +30,7 @@ export class HttpApi {
     this.app.use(bodyParser.json());
     this.app.use(express.json());
 
-    if (this?.webhook?.enabled && this?.webhook?.url) {
-      const url = new URL(this.webhook.url);
-      logger.info(`using webhook at ${url.pathname}`);
-      this.app.post(url.pathname, this.handleWebhook);
-    }
+    this.setupHandlers();
 
     this.app.use(errorMiddleware);
   }
@@ -47,10 +45,40 @@ export class HttpApi {
   }
 
   /**
+   * Adds webhandlers
+   */
+  private setupHandlers() {
+    // Webhooks (if available)
+    if (this?.webhook?.enabled && this?.webhook?.url) {
+      const url = new URL(this.webhook.url);
+      logger.info(`using webhook at ${url.pathname}`);
+      this.app.post(url.pathname, this.handleWebhook);
+      this.app.get(url.pathname, this.testWebhook);
+    }
+
+    this.app.post(this.vk.endpoint, this.handleVkEvent);
+  }
+
+  /**
    * Handles telegram webhooks
    */
   private handleWebhook = async (req: Request, res: Response) => {
     logger.debug("got message via webhook", req.body);
     await this.telegram.handleUpdate(req.body, res);
+  };
+
+  /**
+   * Just returns 200
+   */
+  private testWebhook = async (req: Request, res: Response) => {
+    res.sendStatus(200);
+  };
+
+  /**
+   * Handles VK events
+   */
+  private handleVkEvent = async (req: Request, res: Response) => {
+    await this.vk.handle(req.body);
+    res.sendStatus(200);
   };
 }
