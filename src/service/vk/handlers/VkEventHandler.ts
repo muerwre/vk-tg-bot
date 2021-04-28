@@ -1,14 +1,17 @@
 import { NextMiddleware } from "middleware-io";
-import { ConfigGroup, GroupInstance } from "../types";
+import { ConfigGroup, GroupInstance, VkEvent } from "../types";
 import { VkService } from "../index";
 import { TelegramService } from "../../telegram";
+import { Template } from "../../template";
 
-export abstract class VkEventHandler {
+export class VkEventHandler {
   public constructor(
+    protected type: VkEvent,
     protected group: ConfigGroup,
     protected instance: GroupInstance,
     protected vk: VkService,
-    protected telegram: TelegramService
+    protected telegram: TelegramService,
+    protected template: Template<any>
   ) {}
 
   public execute: (

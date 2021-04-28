@@ -9,7 +9,7 @@ async function main() {
   try {
     const config = prepareConfig();
     const telegram = new TelegramService(config.telegram);
-    const vkService = new VkService(config.vk, telegram);
+    const vkService = new VkService(config.vk, telegram, config.templates);
 
     const telegramApi = new TelegramApi(telegram).listen();
     await telegram.start();

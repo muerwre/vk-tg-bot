@@ -23,6 +23,9 @@ export class MessageNewHandler extends VkEventHandler {
       `received message from ${from.first_name} ${from.last_name}: ${context.text}`
     );
 
+    const template = this.template.template;
+    const fields = this.template.fields;
+
     await next();
   };
 }
