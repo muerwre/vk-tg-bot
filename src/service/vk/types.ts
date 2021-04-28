@@ -1,9 +1,11 @@
+import { API, Upload, Updates } from "vk-io";
+
 export interface VkConfig extends Record<string, any> {
   groups: ConfigGroup[];
   endpoint?: string;
 }
 
-interface ConfigGroup {
+export interface ConfigGroup {
   id: number;
   name: string;
   testResponse: string;
@@ -18,10 +20,15 @@ interface GroupChannel {
 }
 
 export enum VkEvent {
-  Confirmation = "confirmation",
   WallPostNew = "wall_post_new",
   PostSuggestion = "post_suggestion",
   GroupJoin = "group_join",
   GroupLeave = "group_leave",
   MessageNew = "message_new",
+}
+
+export interface GroupInstance {
+  api: API;
+  upload: Upload;
+  updates: Updates;
 }

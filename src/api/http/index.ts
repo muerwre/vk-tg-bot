@@ -56,7 +56,8 @@ export class HttpApi {
       this.app.get(url.pathname, this.testWebhook);
     }
 
-    this.app.post(this.vk.endpoint, this.handleVkEvent);
+    // VK event handler
+    this.app.post(this.vk.endpoint, this.vk.handle);
   }
 
   /**
@@ -71,14 +72,6 @@ export class HttpApi {
    * Just returns 200
    */
   private testWebhook = async (req: Request, res: Response) => {
-    res.sendStatus(200);
-  };
-
-  /**
-   * Handles VK events
-   */
-  private handleVkEvent = async (req: Request, res: Response) => {
-    await this.vk.handle(req.body);
     res.sendStatus(200);
   };
 }
