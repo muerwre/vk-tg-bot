@@ -8,7 +8,6 @@ import toVFile from "to-vfile";
 import path from "path";
 
 export class Template<T extends Record<string, any>> {
-  private processor: Processor;
   public fields: T = {} as T;
   public template: string = "";
 
@@ -18,14 +17,14 @@ export class Template<T extends Record<string, any>> {
         return;
       }
 
-      this.processor = unified()
+      const processor = unified()
         .use(parser)
         .use(compiler)
         .use(frontmatter)
         .use(extract, { yaml: parse });
 
       const file = toVFile.readSync(path.join(__dirname, "../../", filename));
-      const result = this.processor.processSync(file);
+      const result = processor.processSync(file);
 
       this.fields = result.data as T;
       this.template = result
