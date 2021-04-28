@@ -4,15 +4,16 @@ import logger from "../logger";
 import { Request, Response } from "express";
 import { flatten, has, keys } from "ramda";
 import { NextFunction } from "connect";
-import { VkEventHandler } from "./handlers/types";
+import { VkEventHandler } from "./handlers/VkEventHandler";
 import { vkEventToHandler } from "./handlers";
+import { TelegramService } from "../telegram";
 
 export class VkService {
   public endpoint: string = "/";
   private readonly instances: Record<string, GroupInstance>;
   private readonly groups: Record<number, ConfigGroup>;
 
-  constructor(private config: VkConfig) {
+  constructor(private config: VkConfig, private telegram: TelegramService) {
     if (!config.groups.length) {
       throw new Error("No vk groups to handle. Specify them in config");
     }
@@ -63,7 +64,6 @@ export class VkService {
   private createGroupInstance = (group: ConfigGroup): GroupInstance => {
     const api = new API({
       token: group.apiKey,
-      apiBaseUrl: this.config.endpoint,
     });
     const upload = new Upload({ api });
     const updates = new Updates({
@@ -73,7 +73,14 @@ export class VkService {
       webhookSecret: group.secretKey,
     });
 
-    const handlers = this.setupHandlers(group);
+    const instance = {
+      api,
+      upload,
+      updates,
+    };
+
+    const handlers = this.setupHandlers(group, instance);
+
     handlers.forEach((channel) => {
       keys(channel).forEach((event) => {
         console.log(`updates in ${String(event)}`);
@@ -81,22 +88,26 @@ export class VkService {
       });
     });
 
-    return {
-      api,
-      upload,
-      updates,
-    };
+    return instance;
   };
 
   /**
    * Setups handlers
    */
-  private setupHandlers(group: ConfigGroup): Record<VkEvent, VkEventHandler>[] {
+  private setupHandlers(
+    group: ConfigGroup,
+    instance: GroupInstance
+  ): Record<VkEvent, VkEventHandler>[] {
     return flatten(
       group.channels.map((chan) =>
         chan.events.reduce((acc, event) => {
-          const handler = vkEventToHandler[event];
-          return { ...acc, [event]: new handler(group) };
+          const handler = new (vkEventToHandler as any)[event](
+            group,
+            instance,
+            this,
+            this.telegram
+          );
+          return { ...acc, [event]: handler };
         }, {} as Record<VkEvent, VkEventHandler>[])
       )
     );

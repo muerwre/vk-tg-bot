@@ -1,11 +1,14 @@
 import { VkEvent } from "../types";
-import { VkEventHandler } from "./types";
+import { VkEventHandler } from "./VkEventHandler";
 import { MessageNewHandler } from "./MessageNewHandler";
 
-export const vkEventToHandler: Record<VkEvent, typeof VkEventHandler> = {
-  [VkEvent.GroupJoin]: VkEventHandler,
-  [VkEvent.GroupLeave]: VkEventHandler,
+type DerivedHandler = typeof VkEventHandler;
+interface Handler extends DerivedHandler {}
+
+export const vkEventToHandler: Record<VkEvent, Handler> = {
+  [VkEvent.GroupJoin]: MessageNewHandler,
+  [VkEvent.GroupLeave]: MessageNewHandler,
   [VkEvent.MessageNew]: MessageNewHandler,
-  [VkEvent.PostSuggestion]: VkEventHandler,
-  [VkEvent.WallPostNew]: VkEventHandler,
+  [VkEvent.PostSuggestion]: MessageNewHandler,
+  [VkEvent.WallPostNew]: MessageNewHandler,
 };
