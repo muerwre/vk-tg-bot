@@ -8,6 +8,9 @@ import { VkEventHandler } from "./handlers/VkEventHandler";
 import { vkEventToHandler } from "./handlers";
 import { TelegramService } from "../telegram";
 
+/**
+ * Service to handle VK to Telegram interactions
+ */
 export class VkService {
   public endpoint: string = "/";
   private readonly instances: Record<string, GroupInstance>;
@@ -61,6 +64,9 @@ export class VkService {
     }
   };
 
+  /**
+   * Creates vk bot instance for each group with api, uploader and updates handler
+   */
   private createGroupInstance = (group: ConfigGroup): GroupInstance => {
     const api = new API({
       token: group.apiKey,
