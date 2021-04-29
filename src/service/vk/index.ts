@@ -1,5 +1,5 @@
 import { ConfigGroup, GroupInstance, VkConfig, VkEvent } from "./types";
-import { API, Upload, Updates } from "vk-io";
+import { API, Updates, Upload } from "vk-io";
 import logger from "../logger";
 import { Request, Response } from "express";
 import { flatten, has, keys } from "ramda";
@@ -7,6 +7,8 @@ import { NextFunction } from "connect";
 import { VkEventHandler } from "./handlers/VkEventHandler";
 import { vkEventToHandler } from "./handlers";
 import { TelegramService } from "../telegram";
+import { Template } from "../template";
+import { TemplateConfig } from "../../config/types";
 
 /**
  * Service to handle VK to Telegram interactions
@@ -16,7 +18,11 @@ export class VkService {
   private readonly instances: Record<string, GroupInstance>;
   private readonly groups: Record<number, ConfigGroup>;
 
-  constructor(private config: VkConfig, private telegram: TelegramService) {
+  constructor(
+    private config: VkConfig,
+    private telegram: TelegramService,
+    private templates: TemplateConfig
+  ) {
     if (!config.groups.length) {
       throw new Error("No vk groups to handle. Specify them in config");
     }
@@ -107,11 +113,16 @@ export class VkService {
     return flatten(
       group.channels.map((chan) =>
         chan.events.reduce((acc, event) => {
-          const handler = new (vkEventToHandler as any)[event](
+          const template = new Template(this.templates[event]);
+
+          const handler = new vkEventToHandler[event](
+            event,
             group,
+            chan.id,
             instance,
             this,
-            this.telegram
+            this.telegram,
+            template
           );
           return { ...acc, [event]: handler };
         }, {} as Record<VkEvent, VkEventHandler>[])

@@ -4,6 +4,7 @@ import logger from "../logger";
 import { Response } from "express";
 import { Update } from "typegram";
 import loggerTgMiddleware from "../logger/tg";
+import { ExtraReplyMessage } from "telegraf/typings/telegram-types";
 
 // import SocksProxyAgent from 'socks-proxy-agent';
 
@@ -73,5 +74,17 @@ export class TelegramService {
     const isWebhookEnabled = this.webhook.enabled && this.webhook.url;
     // TODO: test this.webhook.url with axios instead of 'true'
     return isWebhookEnabled && true;
+  };
+
+  /**
+   * Sends simple message to channel
+   */
+  public sendMessageToChan = async (
+    channel: string,
+    message: string,
+    extra?: ExtraReplyMessage
+  ) => {
+    await this.bot.telegram.sendMessage(channel, message, extra);
+    return;
   };
 }

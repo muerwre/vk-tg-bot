@@ -12,6 +12,8 @@ vk:
   # Default path for POST requests from VK api
   endpoint: /
   groups: []
+templates:
+  message_new: templates/message_new.md
 #  groups:
 #    - id: 0
 #      name: 'Group name'
@@ -21,5 +23,9 @@ vk:
 #      channels:
 #        - id: '@pogonia_test_chan'
 #          events:
-#            - test
-#            - another one
+#            - wall_post_new
+#            - post_suggestion
+#            - group_join
+#            - group_leave
+#            - message_new
+
