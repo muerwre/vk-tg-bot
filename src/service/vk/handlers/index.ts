@@ -5,6 +5,7 @@ import { StubHandler } from "./StubHandler";
 import { VkService } from "../index";
 import { TelegramService } from "../../telegram";
 import { Template } from "../../template";
+import { PostNewHandler } from "./PostNewHandler";
 
 interface Handler {
   new (
@@ -22,6 +23,5 @@ export const vkEventToHandler: Record<VkEvent, Handler> = {
   [VkEvent.GroupJoin]: StubHandler,
   [VkEvent.GroupLeave]: StubHandler,
   [VkEvent.MessageNew]: MessageNewHandler,
-  [VkEvent.PostSuggestion]: StubHandler,
-  [VkEvent.WallPostNew]: StubHandler,
+  [VkEvent.WallPostNew]: PostNewHandler,
 };

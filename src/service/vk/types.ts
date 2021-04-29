@@ -21,7 +21,6 @@ interface GroupChannel {
 
 export enum VkEvent {
   WallPostNew = "wall_post_new",
-  PostSuggestion = "post_suggestion",
   GroupJoin = "group_join",
   GroupLeave = "group_leave",
   MessageNew = "message_new",
