@@ -20,7 +20,7 @@ export class MessageNewHandler extends VkEventHandler {
     const from = users[0];
 
     logger.debug(
-      `received message from ${from.first_name} ${from.last_name}: ${context.text}`
+      `vk, group ${this.group.name} received message from ${from.first_name} ${from.last_name}: ${context.text}`
     );
 
     await next();
