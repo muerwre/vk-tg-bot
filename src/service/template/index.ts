@@ -1,6 +1,6 @@
 import extract from "remark-extract-frontmatter";
 import frontmatter from "remark-frontmatter";
-import compiler from "remark-stringify";
+import compiler from "retext-stringify";
 import parser from "remark-parse";
 import unified from "unified";
 import { parse } from "yaml";

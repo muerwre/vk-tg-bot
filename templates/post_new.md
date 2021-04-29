@@ -5,6 +5,9 @@
     links:
         https://map.vault48.org/: Посмотреть карту
         http://map.vault48.org/: Посмотреть карту
+        https://vk.com/album-: Альбом поката
+        http://vk.com/album-: Альбом поката
+    likes: ['😱','🤔','😃']
 ---
 {{!-- 
     use handlebars template here
