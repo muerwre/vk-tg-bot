@@ -40,7 +40,21 @@ export class Template<
     }
   }
 
-  theme = (values: V) => {
+  /**
+   * Themes the tempalte with values
+   */
+  public theme = (values: V) => {
     return hb.compile(this.template)(values);
   };
+
+  /**
+   * Registers handlebars helpers
+   */
+  public static registerHelpers() {
+    hb.registerHelper("ifEq", function (arg1, arg2, options) {
+      return arg1 == arg2 ? options.fn(this) : options.inverse(this);
+    });
+  }
 }
+
+Template.registerHelpers();
