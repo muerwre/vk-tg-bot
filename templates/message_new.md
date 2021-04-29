@@ -1,5 +1,9 @@
 ---
     buttons: [link]
 ---
-
-{{ .FirstName }} {{ .LastName }} пишет: {{ .Text }}
+{{!-- 
+    use handlebars template here
+    available variables are: user, text
+    (see MessageNewHandler) 
+--}}
+{{user.first_name}} {{user.last_name}} пишет: {{text}}

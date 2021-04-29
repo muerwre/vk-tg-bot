@@ -6,9 +6,13 @@ import unified from "unified";
 import { parse } from "yaml";
 import toVFile from "to-vfile";
 import path from "path";
+import hb from "handlebars";
 
-export class Template<T extends Record<string, any>> {
-  public fields: T = {} as T;
+export class Template<
+  F extends Record<string, any>,
+  V extends Record<string, any>
+> {
+  public fields: F = {} as F;
   public template: string = "";
 
   constructor(filename: string) {
@@ -26,7 +30,7 @@ export class Template<T extends Record<string, any>> {
       const file = toVFile.readSync(path.join(__dirname, "../../", filename));
       const result = processor.processSync(file);
 
-      this.fields = result.data as T;
+      this.fields = result.data as F;
       this.template = result
         .toString()
         .replace(/^---\n(.*)---\n?$/gms, "")
@@ -35,4 +39,8 @@ export class Template<T extends Record<string, any>> {
       throw new Error(`Template: ${e.toString()}`);
     }
   }
+
+  theme = (values: V) => {
+    return hb.compile(this.template)(values);
+  };
 }

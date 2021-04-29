@@ -1,5 +1,5 @@
 import { ConfigGroup, GroupInstance, VkConfig, VkEvent } from "./types";
-import { API, Upload, Updates } from "vk-io";
+import { API, Updates, Upload } from "vk-io";
 import logger from "../logger";
 import { Request, Response } from "express";
 import { flatten, has, keys } from "ramda";
@@ -112,6 +112,7 @@ export class VkService {
           const handler = new vkEventToHandler[event](
             event,
             group,
+            chan.id,
             instance,
             this,
             this.telegram,
