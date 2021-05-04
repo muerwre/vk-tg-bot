@@ -1,6 +1,6 @@
 import { VkEvent } from "../vk/types";
 
-export interface Event {
+export interface StoredEvent {
   type: VkEvent;
   id: number;
   groupId: number;
@@ -10,7 +10,8 @@ export interface Event {
   updatedAt: Date;
 }
 
-export interface Like {
+export interface StoredLike {
+  id: number;
   messageId: number;
   channel: string;
   text: string;

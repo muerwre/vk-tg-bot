@@ -1,5 +1,5 @@
 import { VkEvent } from "../vk/types";
-import { Event, Like } from "./types";
+import { StoredEvent, StoredLike } from "./types";
 
 export interface Storage {
   getEvent(
@@ -7,11 +7,15 @@ export interface Storage {
     id: number,
     groupId: number,
     channel: string
-  ): Promise<Event>;
+  ): Promise<StoredEvent>;
 
-  createEvent(event: Event): Promise<Event>;
+  createEvent(event: StoredEvent): Promise<StoredEvent>;
 
-  getLikesFor(channel: string, messageId: number): Promise<Like[]>;
+  getLikesFor(channel: string, messageId: number): Promise<StoredLike[]>;
 
-  getLikeBy(channel: string, messageId: number, author: number): Promise<Like>;
+  getLikeBy(
+    channel: string,
+    messageId: number,
+    author: number
+  ): Promise<StoredLike>;
 }
