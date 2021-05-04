@@ -25,4 +25,6 @@ export class Event {
   createdAt: Date;
   @UpdateDateColumn()
   updatedAt: Date;
+  @Column({ type: "text", default: "", nullable: false })
+  text: string;
 }
