@@ -14,6 +14,7 @@ vk:
   groups: []
 templates:
   message_new: templates/message_new.md
+  wall_post_new: templates/post_new.md
 #  groups:
 #    - id: 0
 #      name: 'Group name'

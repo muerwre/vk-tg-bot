@@ -1,12 +1,16 @@
 import extract from "remark-extract-frontmatter";
 import frontmatter from "remark-frontmatter";
-import compiler from "remark-stringify";
+import compiler from "retext-stringify";
 import parser from "remark-parse";
 import unified from "unified";
 import { parse } from "yaml";
 import toVFile from "to-vfile";
 import path from "path";
 import hb from "handlebars";
+
+const removeFrontmatter = () => (tree) => {
+  tree.children = tree.children.filter((item) => item.type !== "yaml");
+};
 
 export class Template<
   F extends Record<string, any>,
@@ -22,19 +26,17 @@ export class Template<
       }
 
       const processor = unified()
-        .use(parser)
         .use(compiler)
         .use(frontmatter)
-        .use(extract, { yaml: parse });
+        .use(extract, { yaml: parse })
+        .use(removeFrontmatter)
+        .use(parser);
 
       const file = toVFile.readSync(path.join(__dirname, "../../", filename));
       const result = processor.processSync(file);
 
       this.fields = result.data as F;
-      this.template = result
-        .toString()
-        .replace(/^---\n(.*)---\n?$/gms, "")
-        .trim();
+      this.template = result.contents.toString().trim();
     } catch (e) {
       throw new Error(`Template: ${e.toString()}`);
     }

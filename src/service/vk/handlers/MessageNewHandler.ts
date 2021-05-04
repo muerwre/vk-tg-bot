@@ -8,7 +8,7 @@ import { ConfigGroup } from "../types";
 import { ExtraReplyMessage } from "telegraf/typings/telegram-types";
 
 interface Fields {
-  buttons?: string[];
+  buttons?: "link"[];
   link_text?: string;
 }
 
@@ -46,9 +46,7 @@ export class MessageNewHandler extends VkEventHandler<Fields, Values> {
 
     this.appendButtons(extras, user.id);
 
-    await this.telegram
-      .sendMessageToChan(this.channel, parsed, extras)
-      .catch(next);
+    await this.telegram.sendMessageToChan(this.channel, parsed, extras);
 
     await next();
   };
