@@ -85,7 +85,6 @@ export class TelegramService {
     extra?: ExtraReplyMessage
   ) => {
     logger.debug(`sending message "${message}" to chan "${channel}"`);
-    await this.bot.telegram.sendMessage(channel, message, extra);
-    return;
+    return await this.bot.telegram.sendMessage(channel, message, extra);
   };
 }

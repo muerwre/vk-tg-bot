@@ -41,10 +41,22 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
   private likes: string[] = ["👎", "👍"];
 
   public execute = async (context: WallPostContext, next: NextMiddleware) => {
+    const id = context?.wall?.id;
+
     if (
       context.isRepost ||
-      !PostNewHandler.isValidPostType(context?.wall?.postType)
+      !PostNewHandler.isValidPostType(context?.wall?.postType) ||
+      !id
     ) {
+      await next();
+      return;
+    }
+
+    const exist = await this.getEventFromDB(id);
+    if (exist) {
+      logger.warn(
+        `received duplicate entry for ${this.group.name}, ${this.type}, ${id}`
+      );
       await next();
       return;
     }
@@ -67,7 +79,13 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
 
     this.appendExtras(extras, text);
 
-    await this.telegram.sendMessageToChan(this.channel, parsed, extras);
+    const msg = await this.telegram.sendMessageToChan(
+      this.channel,
+      parsed,
+      extras
+    );
+
+    await this.storeInDB(id, msg.message_id);
 
     await next();
   };

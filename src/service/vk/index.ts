@@ -66,6 +66,7 @@ export class VkService {
       logger.debug(`received vk event`, { body });
 
       const inst = this.instances[groupId] as GroupInstance;
+
       inst.updates.getWebhookCallback(this.config.endpoint)(req, res, next);
     } catch (e) {
       next(e);

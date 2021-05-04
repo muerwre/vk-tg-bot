@@ -5,15 +5,16 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { StoredEvent } from "../../types";
 import { VkEvent } from "../../../vk/types";
 
 @Entity()
-export class Event implements StoredEvent {
+export class Event {
   @PrimaryGeneratedColumn()
   id: number;
   @Column()
   type: VkEvent;
+  @Column()
+  eventId: number;
   @Column()
   groupId: number;
   @Column()

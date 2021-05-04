@@ -5,10 +5,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { StoredLike } from "../../types";
 
 @Entity()
-export class Like implements StoredLike {
+export class Like {
   @PrimaryGeneratedColumn()
   id: number;
   @Column()

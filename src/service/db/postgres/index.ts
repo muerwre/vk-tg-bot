@@ -35,19 +35,29 @@ export class PostgresDB implements Storage {
 
   getEvent = async (
     type: VkEvent,
-    id: number,
+    eventId: number,
     groupId: number,
     channel: string
   ) => {
-    return await this.events.findOne({ type, id, groupId, channel });
+    return await this.events.findOne({ type, eventId, groupId, channel });
   };
 
-  createEvent = async (event) => {
-    const result = this.events.create({
-      ...event,
+  createEvent = async (
+    type: VkEvent,
+    eventId: number,
+    groupId: number,
+    channel: string,
+    tgMessageId: number
+  ) => {
+    const event = this.events.create({
+      type,
+      eventId,
+      groupId,
+      channel,
+      tgMessageId,
     });
 
-    return result[0];
+    return await this.events.save(event);
   };
 
   getLikesFor = async (channel, messageId) => {

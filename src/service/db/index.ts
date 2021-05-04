@@ -5,12 +5,18 @@ import { Event } from "./postgres/entities/Event";
 export interface Storage {
   getEvent(
     type: VkEvent,
-    id: number,
+    eventId: number,
     groupId: number,
     channel: string
   ): Promise<Event>;
 
-  createEvent(event: Partial<Event>): Promise<Event>;
+  createEvent(
+    type: VkEvent,
+    eventId: number,
+    groupId: number,
+    channel: string,
+    tgMessageId: number
+  ): Promise<Event>;
 
   createOrUpdateLike(like: Partial<Like>): Promise<Like>;
 

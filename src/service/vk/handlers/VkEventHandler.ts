@@ -4,6 +4,7 @@ import { VkService } from "../index";
 import { TelegramService } from "../../telegram";
 import { Template } from "../../template";
 import { Storage } from "../../db";
+import { Event } from "../../db/postgres/entities/Event";
 
 export class VkEventHandler<
   F extends Record<string, any> = any,
@@ -46,4 +47,28 @@ export class VkEventHandler<
    */
   protected makeDialogUrl = (groupId: number, userId: number): string =>
     `https://vk.com/gim${groupId}?sel=${userId}`;
+
+  /**
+   * Checks for duplicates
+   */
+  getEventFromDB = async (id?: number): Promise<Event | undefined> => {
+    if (!id) {
+      return undefined;
+    }
+
+    return await this.db.getEvent(this.type, id, this.group.id, this.channel);
+  };
+
+  /**
+   * Creates event record in DB
+   */
+  storeInDB = async (id: number, tgMessageId: number) => {
+    return await this.db.createEvent(
+      this.type,
+      id,
+      this.group.id,
+      this.channel,
+      tgMessageId
+    );
+  };
 }
