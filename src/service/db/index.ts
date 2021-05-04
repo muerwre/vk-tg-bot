@@ -1,6 +1,6 @@
 import { VkEvent } from "../vk/types";
-import { StoredEvent, StoredLike } from "./types";
 import { Like } from "./postgres/entities/Like";
+import { Event } from "./postgres/entities/Event";
 
 export interface Storage {
   getEvent(
@@ -8,17 +8,13 @@ export interface Storage {
     id: number,
     groupId: number,
     channel: string
-  ): Promise<StoredEvent>;
+  ): Promise<Event>;
 
-  createEvent(event: Partial<StoredEvent>): Promise<StoredEvent>;
+  createEvent(event: Partial<Event>): Promise<Event>;
 
-  createOrUpdateLike(like: Partial<StoredLike>): Promise<Like>;
+  createOrUpdateLike(like: Partial<Like>): Promise<Like>;
 
-  getLikesFor(channel: string, messageId: number): Promise<StoredLike[]>;
+  getLikesFor(channel: string, messageId: number): Promise<Like[]>;
 
-  getLikeBy(
-    channel: string,
-    messageId: number,
-    author: number
-  ): Promise<StoredLike>;
+  getLikeBy(channel: string, messageId: number, author: number): Promise<Like>;
 }
