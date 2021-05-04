@@ -3,6 +3,7 @@ import { ConfigGroup, GroupInstance, VkEvent } from "../types";
 import { VkService } from "../index";
 import { TelegramService } from "../../telegram";
 import { Template } from "../../template";
+import { Storage } from "../../db";
 
 export class VkEventHandler<
   F extends Record<string, any> = any,
@@ -15,7 +16,8 @@ export class VkEventHandler<
     protected instance: GroupInstance,
     protected vk: VkService,
     protected telegram: TelegramService,
-    protected template: Template<F, V>
+    protected template: Template<F, V>,
+    protected db: Storage
   ) {}
 
   public execute: (

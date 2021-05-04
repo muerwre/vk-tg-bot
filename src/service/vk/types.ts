@@ -14,7 +14,7 @@ export interface ConfigGroup {
   channels: GroupChannel[];
 }
 
-interface GroupChannel {
+export interface GroupChannel {
   id: string;
   events: VkEvent[];
 }
