@@ -4,15 +4,16 @@ import { NextMiddleware } from "middleware-io";
 import { UsersUserFull } from "vk-io/lib/api/schemas/objects";
 import { ConfigGroup } from "../types";
 import { ExtraReplyMessage } from "telegraf/typings/telegram-types";
-import { InlineKeyboardButton } from "typegram";
+import { InlineKeyboardButton, Update } from "typegram";
 import { keys } from "ramda";
 import { extractURLs } from "../../../utils/extract";
+import logger from "../../logger";
+import Composer from "telegraf";
+import CallbackQueryUpdate = Update.CallbackQueryUpdate;
 
 type Button = "links" | "likes";
 type UrlPrefix = string;
 type ExtraGenerator = (text: string) => InlineKeyboardButton[];
-
-const defaultLikes = ["👎", "👍"];
 
 interface Fields {
   image?: boolean;
@@ -28,7 +29,17 @@ interface Values {
   text: string;
 }
 
+type LikeCtx = Composer.Context<CallbackQueryUpdate> & { match: string[] };
+
 export class PostNewHandler extends VkEventHandler<Fields, Values> {
+  constructor(...props: any) {
+    // @ts-ignore
+    super(...props);
+    this.onInit();
+  }
+
+  private likes: string[] = ["👎", "👍"];
+
   public execute = async (context: WallPostContext, next: NextMiddleware) => {
     if (
       context.isRepost ||
@@ -121,15 +132,55 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
    * Generates like button
    */
   private generateLikes: ExtraGenerator = () => {
-    const likes = this.template.fields.likes || defaultLikes;
-    return likes.map((like, i) => ({
+    return this.likes.map((like, i) => ({
       text: like,
-      callback_data: `/like ${like}`,
+      callback_data: `/like ${this.channel} ${like}`,
     }));
   };
 
+  /**
+   * Button generators dictionary
+   */
   private extrasGenerators: Record<Button, ExtraGenerator> = {
     links: this.generateLinks,
     likes: this.generateLikes,
+  };
+
+  /**
+   * Adds needed listeners
+   */
+  protected onInit = () => {
+    if (this.template.fields.likes) {
+      this.likes = this.template.fields.likes;
+    }
+
+    if (!this.template.fields.buttons?.includes("likes")) {
+      return;
+    }
+
+    this.telegram.bot.action(/like (.*) (.*)/, this.onLikeAction);
+  };
+
+  /**
+   * Reacts to like button press
+   */
+  onLikeAction = async (ctx: LikeCtx, next) => {
+    const id = ctx.update.callback_query.message.message_id;
+    const [_, channel, emo] = ctx.match;
+
+    if (
+      !channel ||
+      !emo ||
+      !id ||
+      channel != this.channel ||
+      !this.likes.includes(emo)
+    ) {
+      await next();
+      return;
+    }
+
+    logger.warn(
+      `someone reacted with ${emo} to message ${id} on channel ${channel}`
+    );
   };
 }
