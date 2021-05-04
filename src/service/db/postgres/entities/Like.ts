@@ -8,7 +8,7 @@ import {
 import { StoredLike } from "../../types";
 
 @Entity()
-class Like implements StoredLike {
+export class Like implements StoredLike {
   @PrimaryGeneratedColumn()
   id: number;
   @Column()

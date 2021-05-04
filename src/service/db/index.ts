@@ -1,5 +1,6 @@
 import { VkEvent } from "../vk/types";
 import { StoredEvent, StoredLike } from "./types";
+import { Like } from "./postgres/entities/Like";
 
 export interface Storage {
   getEvent(
@@ -9,7 +10,9 @@ export interface Storage {
     channel: string
   ): Promise<StoredEvent>;
 
-  createEvent(event: StoredEvent): Promise<StoredEvent>;
+  createEvent(event: Partial<StoredEvent>): Promise<StoredEvent>;
+
+  createOrUpdateLike(like: Partial<StoredLike>): Promise<Like>;
 
   getLikesFor(channel: string, messageId: number): Promise<StoredLike[]>;
 

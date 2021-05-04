@@ -3,6 +3,10 @@ import { VkEvent } from "../../vk/types";
 import { StoredEvent } from "../types";
 import { PostgresConfig } from "./types";
 import { Connection, createConnection } from "typeorm";
+import logger from "../../logger";
+import path from "path";
+
+const entities = [path.join(__dirname, "./entities/*")];
 
 export class PostgresDB implements Storage {
   private connection: Connection;
@@ -12,8 +16,14 @@ export class PostgresDB implements Storage {
     this.connection = await createConnection({
       type: "postgres",
       url: this.config.uri,
-      entities: ["./entities/*.ts"],
+      entities,
+      logging: true,
+      synchronize: true,
     });
+
+    await this.connection.synchronize();
+
+    logger.info(`db connected to ${this.config.uri}`);
   };
 
   getEvent = async (

@@ -7,7 +7,7 @@ telegram:
     url: https://something.org:3002/webhook
     enabled: false
 postgres:
-  uri: postgres://user:password@db/test
+  uri: postgres://user:password@db/bot
 logger:
   level: info
 vk:
