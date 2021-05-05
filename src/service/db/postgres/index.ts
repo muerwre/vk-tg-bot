@@ -47,7 +47,8 @@ export class PostgresDB implements Storage {
     eventId: number,
     groupId: number,
     channel: string,
-    tgMessageId: number
+    tgMessageId: number,
+    text: Record<any, any>
   ) => {
     const event = this.events.create({
       type,
@@ -55,6 +56,7 @@ export class PostgresDB implements Storage {
       groupId,
       channel,
       tgMessageId,
+      text,
     });
 
     return await this.events.save(event);

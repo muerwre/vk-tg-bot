@@ -13,7 +13,10 @@ import CallbackQueryUpdate = Update.CallbackQueryUpdate;
 
 type Button = "links" | "likes";
 type UrlPrefix = string;
-type ExtraGenerator = (text: string) => InlineKeyboardButton[];
+type ExtraGenerator = (
+  text: string,
+  messageId?: number
+) => InlineKeyboardButton[];
 
 interface Fields {
   image?: boolean;
@@ -52,7 +55,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       return;
     }
 
-    const exist = await this.getEventFromDB(id);
+    const exist = await this.getEvent(id);
     if (exist) {
       logger.warn(
         `received duplicate entry for ${this.group.name}, ${this.type}, ${id}`
@@ -85,7 +88,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       extras
     );
 
-    await this.storeInDB(id, msg.message_id);
+    await this.createEvent(id, msg.message_id, context.wall.toJSON());
 
     await next();
   };
@@ -100,14 +103,18 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
   /**
    * Creates extras
    */
-  private appendExtras = (extras: ExtraReplyMessage, text: string) => {
+  private appendExtras = (
+    extras: ExtraReplyMessage,
+    text: string,
+    messageId?: number
+  ) => {
     const { buttons } = this.template.fields;
     if (!buttons?.length) {
       return;
     }
 
     const keyboard = buttons
-      .map((button) => this.extrasGenerators[button](text))
+      .map((button) => this.extrasGenerators[button](text, messageId))
       .filter((el) => el && el.length);
 
     if (!keyboard.length) {
@@ -185,17 +192,28 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
   onLikeAction = async (ctx: LikeCtx, next) => {
     const id = ctx.update.callback_query.message.message_id;
     const [_, channel, emo] = ctx.match;
+    const exist = await this.getEvent(id);
 
     if (
       !channel ||
       !emo ||
       !id ||
+      !exist ||
       channel != this.channel ||
       !this.likes.includes(emo)
     ) {
       await next();
       return;
     }
+
+    // const extras: ExtraReplyMessage = {};
+    // this.appendExtras(extras, exist.text);
+    // await ctx.telegram.editMessageReplyMarkup(
+    //   ctx.chat.id,
+    //   id,
+    //   ctx.inlineMessageId,
+    //   extras.reply_markup.inline_keyboard
+    // );
 
     logger.warn(
       `someone reacted with ${emo} to message ${id} on channel ${channel}`

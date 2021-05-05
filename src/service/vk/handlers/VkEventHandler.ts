@@ -51,7 +51,7 @@ export class VkEventHandler<
   /**
    * Checks for duplicates
    */
-  getEventFromDB = async (id?: number): Promise<Event | undefined> => {
+  getEvent = async (id?: number): Promise<Event | undefined> => {
     if (!id) {
       return undefined;
     }
@@ -62,13 +62,18 @@ export class VkEventHandler<
   /**
    * Creates event record in DB
    */
-  storeInDB = async (id: number, tgMessageId: number) => {
+  createEvent = async (
+    id: number,
+    tgMessageId: number,
+    text: Record<any, any>
+  ) => {
     return await this.db.createEvent(
       this.type,
       id,
       this.group.id,
       this.channel,
-      tgMessageId
+      tgMessageId,
+      text
     );
   };
 }

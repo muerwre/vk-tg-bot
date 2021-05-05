@@ -15,7 +15,8 @@ export interface Storage {
     eventId: number,
     groupId: number,
     channel: string,
-    tgMessageId: number
+    tgMessageId: number,
+    text: Record<any, any>
   ): Promise<Event>;
 
   createOrUpdateLike(like: Partial<Like>): Promise<Like>;
