@@ -51,12 +51,35 @@ export class VkEventHandler<
   /**
    * Checks for duplicates
    */
-  getEvent = async (id?: number): Promise<Event | undefined> => {
+  getEventById = async (id?: number): Promise<Event | undefined> => {
     if (!id) {
       return undefined;
     }
 
-    return await this.db.getEvent(this.type, id, this.group.id, this.channel);
+    return await this.db.getEventById(
+      this.type,
+      id,
+      this.group.id,
+      this.channel
+    );
+  };
+
+  /**
+   * Checks for duplicates
+   */
+  getEventByTgMessageId = async (
+    tgMessageId?: number
+  ): Promise<Event | undefined> => {
+    if (!tgMessageId) {
+      return undefined;
+    }
+
+    return await this.db.getEventByMessageId(
+      this.type,
+      tgMessageId,
+      this.group.id,
+      this.channel
+    );
   };
 
   /**

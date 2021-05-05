@@ -6,6 +6,7 @@ import logger from "../../logger";
 import path from "path";
 import { Like } from "./entities/Like";
 import { Event } from "./entities/Event";
+import { Post } from "./entities/Post";
 
 const entities = [path.join(__dirname, "./entities/*")];
 
@@ -13,6 +14,7 @@ export class PostgresDB implements Storage {
   private connection: Connection;
   private events: Repository<Event>;
   private likes: Repository<Like>;
+  private posts: Repository<Post>;
 
   constructor(private config: PostgresConfig) {}
 
@@ -29,17 +31,37 @@ export class PostgresDB implements Storage {
 
     this.events = this.connection.getRepository(Event);
     this.likes = this.connection.getRepository(Like);
+    this.posts = this.connection.getRepository(Post);
 
     logger.info(`db connected to ${this.config.uri}`);
   };
 
-  getEvent = async (
+  getEventByMessageId = async (
     type: VkEvent,
-    eventId: number,
-    groupId: number,
+    tgMessageId: number,
+    vkGroupId: number,
     channel: string
   ) => {
-    return await this.events.findOne({ type, eventId, groupId, channel });
+    return await this.events.findOne({
+      type,
+      tgMessageId,
+      vkGroupId,
+      channel,
+    });
+  };
+
+  getEventById = async (
+    type: VkEvent,
+    id: number,
+    vkGroupId: number,
+    channel: string
+  ) => {
+    return await this.events.findOne({
+      type,
+      id,
+      vkGroupId,
+      channel,
+    });
   };
 
   createEvent = async (
@@ -52,8 +74,8 @@ export class PostgresDB implements Storage {
   ) => {
     const event = this.events.create({
       type,
-      eventId,
-      groupId,
+      vkEventId: eventId,
+      vkGroupId: groupId,
       channel,
       tgMessageId,
       text,
@@ -76,25 +98,26 @@ export class PostgresDB implements Storage {
     });
   };
 
-  createOrUpdateLike = async ({
-    channel,
-    author,
-    text,
-    messageId,
-  }: Partial<Like>) => {
+  createOrUpdateLike = async (messageId, channel, author, text) => {
     const like = await this.likes.findOne({ channel, author, messageId });
 
     if (like) {
-      like.text = text;
-      return await this.likes.save(like);
+      return await this.likes.save({ ...like, text });
     } else {
-      const created = await this.likes.create({
+      return this.likes.save({
         channel,
         author,
         text,
         messageId,
       });
-      return created[0];
     }
+  };
+
+  findPostByEvent = async (eventId: number) => {
+    return this.posts.findOne({ eventId });
+  };
+
+  createPost = async (eventId: number, text: string) => {
+    return this.posts.save({ eventId, text });
   };
 }

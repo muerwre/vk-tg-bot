@@ -4,7 +4,7 @@ import { NextMiddleware } from "middleware-io";
 import { UsersUserFull } from "vk-io/lib/api/schemas/objects";
 import { ConfigGroup } from "../types";
 import { ExtraReplyMessage } from "telegraf/typings/telegram-types";
-import { InlineKeyboardButton, Update } from "typegram";
+import { InlineKeyboardButton, InlineKeyboardMarkup, Update } from "typegram";
 import { keys } from "ramda";
 import { extractURLs } from "../../../utils/extract";
 import logger from "../../logger";
@@ -15,8 +15,8 @@ type Button = "links" | "likes";
 type UrlPrefix = string;
 type ExtraGenerator = (
   text: string,
-  messageId?: number
-) => InlineKeyboardButton[];
+  eventId?: number
+) => Promise<InlineKeyboardButton[]>;
 
 interface Fields {
   image?: boolean;
@@ -55,7 +55,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       return;
     }
 
-    const exist = await this.getEvent(id);
+    const exist = await this.getEventById(id);
     if (exist) {
       logger.warn(
         `received duplicate entry for ${this.group.name}, ${this.type}, ${id}`
@@ -78,9 +78,8 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
 
     const extras: ExtraReplyMessage = {
       disable_web_page_preview: true,
+      reply_markup: await this.createKeyboard(text),
     };
-
-    this.appendExtras(extras, text);
 
     const msg = await this.telegram.sendMessageToChan(
       this.channel,
@@ -88,7 +87,12 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       extras
     );
 
-    await this.createEvent(id, msg.message_id, context.wall.toJSON());
+    const event = await this.createEvent(
+      id,
+      msg.message_id,
+      context.wall.toJSON()
+    );
+    await this.db.createPost(event.id, context.wall.text);
 
     await next();
   };
@@ -103,33 +107,32 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
   /**
    * Creates extras
    */
-  private appendExtras = (
-    extras: ExtraReplyMessage,
+  private createKeyboard = async (
     text: string,
-    messageId?: number
-  ) => {
+    eventId?: number
+  ): Promise<InlineKeyboardMarkup> => {
     const { buttons } = this.template.fields;
+
     if (!buttons?.length) {
       return;
     }
 
-    const keyboard = buttons
-      .map((button) => this.extrasGenerators[button](text, messageId))
-      .filter((el) => el && el.length);
+    const rows = await Promise.all(
+      buttons.map((button) => this.extrasGenerators[button](text, eventId))
+    );
+    const inline_keyboard = rows.filter((el) => el && el.length);
 
-    if (!keyboard.length) {
+    if (!inline_keyboard.length) {
       return;
     }
 
-    extras.reply_markup = {
-      inline_keyboard: keyboard,
-    };
+    return { inline_keyboard };
   };
 
   /**
    * Generates link buttons for post
    */
-  private generateLinks: ExtraGenerator = (text) => {
+  private generateLinks: ExtraGenerator = async (text) => {
     const links = this.template.fields.links;
 
     if (!links) {
@@ -156,8 +159,25 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
   /**
    * Generates like button
    */
-  private generateLikes: ExtraGenerator = () => {
-    return this.likes.map((like, i) => ({
+  private generateLikes: ExtraGenerator = async (text, eventId) => {
+    if (eventId) {
+      const event = await this.getEventById(eventId);
+      const likes = await this.db.getLikesFor(this.channel, event.tgMessageId);
+      const withCount = likes.reduce(
+        (acc, like) => ({
+          ...acc,
+          [like.text]: acc[like.text] ? acc[like.text] + 1 : 1,
+        }),
+        {} as Record<string, number>
+      );
+
+      return this.likes.map((like) => ({
+        text: withCount[like] ? `${like} ${withCount[like]}` : like,
+        callback_data: `/like ${this.channel} ${like}`,
+      }));
+    }
+
+    return this.likes.map((like) => ({
       text: like,
       callback_data: `/like ${this.channel} ${like}`,
     }));
@@ -191,14 +211,15 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
    */
   onLikeAction = async (ctx: LikeCtx, next) => {
     const id = ctx.update.callback_query.message.message_id;
-    const [_, channel, emo] = ctx.match;
-    const exist = await this.getEvent(id);
+    const author = ctx.update.callback_query.from.id;
+    const [, channel, emo] = ctx.match;
+    const event = await this.getEventByTgMessageId(id);
 
     if (
       !channel ||
       !emo ||
       !id ||
-      !exist ||
+      !event ||
       channel != this.channel ||
       !this.likes.includes(emo)
     ) {
@@ -206,17 +227,50 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       return;
     }
 
-    // const extras: ExtraReplyMessage = {};
-    // this.appendExtras(extras, exist.text);
-    // await ctx.telegram.editMessageReplyMarkup(
-    //   ctx.chat.id,
-    //   id,
-    //   ctx.inlineMessageId,
-    //   extras.reply_markup.inline_keyboard
-    // );
+    const post = await this.db.findPostByEvent(event.id);
+    if (!post) {
+      await next();
+      return;
+    }
 
-    logger.warn(
+    const like = await this.getLike(author, id);
+    if (like?.text === emo) {
+      await next();
+      return;
+    }
+
+    await this.createOrUpdateLike(author, event.tgMessageId, emo);
+
+    const markup = await this.createKeyboard(post.text, event.id);
+
+    await ctx.telegram.editMessageReplyMarkup(
+      ctx.chat.id,
+      id,
+      ctx.inlineMessageId,
+      markup
+    );
+
+    logger.info(
       `someone reacted with ${emo} to message ${id} on channel ${channel}`
     );
+
+    next();
+  };
+
+  createOrUpdateLike = async (
+    author: number,
+    messageId: number,
+    emo: string
+  ) => {
+    return await this.db.createOrUpdateLike(
+      messageId,
+      this.channel,
+      author,
+      emo
+    );
+  };
+
+  getLike = async (author: number, messageId: number) => {
+    return await this.db.getLikeBy(this.channel, messageId, author);
   };
 }

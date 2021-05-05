@@ -14,9 +14,9 @@ export class Event {
   @Column()
   type: VkEvent;
   @Column()
-  eventId: number;
+  vkEventId: number;
   @Column()
-  groupId: number;
+  vkGroupId: number;
   @Column()
   channel: string;
   @Column()
