@@ -1,6 +1,6 @@
 import extract from "remark-extract-frontmatter";
 import frontmatter from "remark-frontmatter";
-import compiler from "retext-stringify";
+import stringify from "retext-stringify";
 import parser from "remark-parse";
 import unified from "unified";
 import { parse } from "yaml";
@@ -26,7 +26,7 @@ export class Template<
       }
 
       const processor = unified()
-        .use(compiler)
+        .use(stringify)
         .use(frontmatter)
         .use(extract, { yaml: parse })
         .use(removeFrontmatter)
