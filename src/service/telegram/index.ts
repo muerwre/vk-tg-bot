@@ -85,7 +85,22 @@ export class TelegramService {
     extra?: ExtraReplyMessage
   ) => {
     logger.debug(`sending message "${message}" to chan "${channel}"`);
-    await this.bot.telegram.sendMessage(channel, message, extra);
-    return;
+    return await this.bot.telegram.sendMessage(channel, message, extra);
+  };
+
+  /**
+   * Sends simple message to channel
+   */
+  public sendPhotoToChan = async (
+    channel: string,
+    caption: string,
+    src: string,
+    extra?: ExtraReplyMessage
+  ) => {
+    logger.debug(`sending photo message "${caption}" to chan "${channel}"`);
+    return await this.bot.telegram.sendPhoto(channel, src, {
+      ...extra,
+      caption,
+    });
   };
 }

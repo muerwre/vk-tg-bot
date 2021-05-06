@@ -4,7 +4,12 @@ import { NextMiddleware } from "middleware-io";
 import { UsersUserFull } from "vk-io/lib/api/schemas/objects";
 import { ConfigGroup } from "../types";
 import { ExtraReplyMessage } from "telegraf/typings/telegram-types";
-import { InlineKeyboardButton, Update } from "typegram";
+import {
+  InlineKeyboardButton,
+  InlineKeyboardMarkup,
+  Message,
+  Update,
+} from "typegram";
 import { keys } from "ramda";
 import { extractURLs } from "../../../utils/extract";
 import logger from "../../logger";
@@ -13,7 +18,10 @@ import CallbackQueryUpdate = Update.CallbackQueryUpdate;
 
 type Button = "links" | "likes";
 type UrlPrefix = string;
-type ExtraGenerator = (text: string) => InlineKeyboardButton[];
+type ExtraGenerator = (
+  text: string,
+  eventId?: number
+) => Promise<InlineKeyboardButton[]>;
 
 interface Fields {
   image?: boolean;
@@ -31,6 +39,8 @@ interface Values {
 
 type LikeCtx = Composer.Context<CallbackQueryUpdate> & { match: string[] };
 
+const PHOTO_CAPTION_LIMIT = 1000;
+
 export class PostNewHandler extends VkEventHandler<Fields, Values> {
   constructor(...props: any) {
     // @ts-ignore
@@ -41,10 +51,22 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
   private likes: string[] = ["👎", "👍"];
 
   public execute = async (context: WallPostContext, next: NextMiddleware) => {
+    const id = context?.wall?.id;
+
     if (
       context.isRepost ||
-      !PostNewHandler.isValidPostType(context?.wall?.postType)
+      !PostNewHandler.isValidPostType(context?.wall?.postType) ||
+      !id
     ) {
+      await next();
+      return;
+    }
+
+    const exist = await this.getEventById(id);
+    if (exist) {
+      logger.warn(
+        `received duplicate entry for ${this.group.name}, ${this.type}, ${id}`
+      );
       await next();
       return;
     }
@@ -55,19 +77,39 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
 
     const text = context.wall.text.trim();
 
-    const parsed = this.template.theme({
-      user,
-      group: this.group,
-      text,
-    });
+    const parsed = this.themeText(text, user);
 
     const extras: ExtraReplyMessage = {
       disable_web_page_preview: true,
+      reply_markup: await this.createKeyboard(text),
     };
 
-    this.appendExtras(extras, text);
+    let msg: Message;
 
-    await this.telegram.sendMessageToChan(this.channel, parsed, extras);
+    const images = context.wall.getAttachments("photo");
+    const hasThumb =
+      this.template.fields.image &&
+      images.length &&
+      images.some((img) => img.mediumSizeUrl);
+
+    if (hasThumb) {
+      const thumb = await images.find((img) => img.mediumSizeUrl);
+      msg = await this.telegram.sendPhotoToChan(
+        this.channel,
+        this.trimTextForPhoto(text, user),
+        thumb.mediumSizeUrl,
+        extras
+      );
+    } else {
+      msg = await this.telegram.sendMessageToChan(this.channel, parsed, extras);
+    }
+
+    const event = await this.createEvent(
+      id,
+      msg.message_id,
+      context.wall.toJSON()
+    );
+    await this.db.createPost(event.id, context.wall.text);
 
     await next();
   };
@@ -82,29 +124,32 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
   /**
    * Creates extras
    */
-  private appendExtras = (extras: ExtraReplyMessage, text: string) => {
+  private createKeyboard = async (
+    text: string,
+    eventId?: number
+  ): Promise<InlineKeyboardMarkup> => {
     const { buttons } = this.template.fields;
+
     if (!buttons?.length) {
       return;
     }
 
-    const keyboard = buttons
-      .map((button) => this.extrasGenerators[button](text))
-      .filter((el) => el && el.length);
+    const rows = await Promise.all(
+      buttons.map((button) => this.extrasGenerators[button](text, eventId))
+    );
+    const inline_keyboard = rows.filter((el) => el && el.length);
 
-    if (!keyboard.length) {
+    if (!inline_keyboard.length) {
       return;
     }
 
-    extras.reply_markup = {
-      inline_keyboard: keyboard,
-    };
+    return { inline_keyboard };
   };
 
   /**
    * Generates link buttons for post
    */
-  private generateLinks: ExtraGenerator = (text) => {
+  private generateLinks: ExtraGenerator = async (text) => {
     const links = this.template.fields.links;
 
     if (!links) {
@@ -131,8 +176,25 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
   /**
    * Generates like button
    */
-  private generateLikes: ExtraGenerator = () => {
-    return this.likes.map((like, i) => ({
+  private generateLikes: ExtraGenerator = async (text, eventId) => {
+    if (eventId) {
+      const event = await this.getEventById(eventId);
+      const likes = await this.db.getLikesFor(this.channel, event.tgMessageId);
+      const withCount = likes.reduce(
+        (acc, like) => ({
+          ...acc,
+          [like.text]: acc[like.text] ? acc[like.text] + 1 : 1,
+        }),
+        {} as Record<string, number>
+      );
+
+      return this.likes.map((like) => ({
+        text: withCount[like] ? `${like} ${withCount[like]}` : like,
+        callback_data: `/like ${this.channel} ${like}`,
+      }));
+    }
+
+    return this.likes.map((like) => ({
       text: like,
       callback_data: `/like ${this.channel} ${like}`,
     }));
@@ -164,14 +226,17 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
   /**
    * Reacts to like button press
    */
-  onLikeAction = async (ctx: LikeCtx, next) => {
+  private onLikeAction = async (ctx: LikeCtx, next) => {
     const id = ctx.update.callback_query.message.message_id;
-    const [_, channel, emo] = ctx.match;
+    const author = ctx.update.callback_query.from.id;
+    const [, channel, emo] = ctx.match;
+    const event = await this.getEventByTgMessageId(id);
 
     if (
       !channel ||
       !emo ||
       !id ||
+      !event ||
       channel != this.channel ||
       !this.likes.includes(emo)
     ) {
@@ -179,8 +244,76 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       return;
     }
 
-    logger.warn(
+    const post = await this.db.findPostByEvent(event.id);
+    if (!post) {
+      await next();
+      return;
+    }
+
+    const like = await this.getLike(author, id);
+    if (like?.text === emo) {
+      await next();
+      return;
+    }
+
+    await this.createOrUpdateLike(author, event.tgMessageId, emo);
+
+    const markup = await this.createKeyboard(post.text, event.id);
+
+    await ctx.telegram.editMessageReplyMarkup(
+      ctx.chat.id,
+      id,
+      ctx.inlineMessageId,
+      markup
+    );
+
+    logger.info(
       `someone reacted with ${emo} to message ${id} on channel ${channel}`
     );
+
+    next();
+  };
+
+  private createOrUpdateLike = async (
+    author: number,
+    messageId: number,
+    emo: string
+  ) => {
+    return await this.db.createOrUpdateLike(
+      messageId,
+      this.channel,
+      author,
+      emo
+    );
+  };
+
+  private getLike = async (author: number, messageId: number) => {
+    return await this.db.getLikeBy(this.channel, messageId, author);
+  };
+
+  /**
+   * Applies template theming to photos
+   */
+  private themeText = (text: string, user?: UsersUserFull): string => {
+    return this.template.theme({
+      user,
+      group: this.group,
+      text,
+    });
+  };
+
+  /**
+   * Calculates, how much should we cut off the text to match photo caption limitations
+   */
+  private trimTextForPhoto = (text: string, user: UsersUserFull): string => {
+    // Full markup
+    const full = this.themeText(text, user);
+    // Rest info except text
+    const others = this.themeText("", user);
+
+    // How much rest markup takes
+    const diff = full.length - others.length;
+
+    return full.slice(0, PHOTO_CAPTION_LIMIT - diff);
   };
 }

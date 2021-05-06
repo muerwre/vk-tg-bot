@@ -9,6 +9,7 @@ import { vkEventToHandler } from "./handlers";
 import { TelegramService } from "../telegram";
 import { Template } from "../template";
 import { TemplateConfig } from "../../config/types";
+import { Storage } from "../db";
 
 /**
  * Service to handle VK to Telegram interactions
@@ -21,7 +22,8 @@ export class VkService {
   constructor(
     private config: VkConfig,
     private telegram: TelegramService,
-    private templates: TemplateConfig
+    private templates: TemplateConfig,
+    private db: Storage
   ) {
     if (!config.groups.length) {
       throw new Error("No vk groups to handle. Specify them in config");
@@ -64,6 +66,7 @@ export class VkService {
       logger.debug(`received vk event`, { body });
 
       const inst = this.instances[groupId] as GroupInstance;
+
       inst.updates.getWebhookCallback(this.config.endpoint)(req, res, next);
     } catch (e) {
       next(e);
@@ -122,7 +125,8 @@ export class VkService {
             instance,
             this,
             this.telegram,
-            template
+            template,
+            this.db
           );
           return { ...acc, [event]: handler };
         }, {} as Record<VkEvent, VkEventHandler>[])

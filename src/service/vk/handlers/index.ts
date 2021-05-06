@@ -6,6 +6,7 @@ import { VkService } from "../index";
 import { TelegramService } from "../../telegram";
 import { Template } from "../../template";
 import { PostNewHandler } from "./PostNewHandler";
+import { Storage } from "../../db";
 
 interface Handler {
   new (
@@ -15,7 +16,8 @@ interface Handler {
     instance: GroupInstance,
     vk: VkService,
     telegram: TelegramService,
-    template: Template<any, any>
+    template: Template<any, any>,
+    db: Storage
   ): VkEventHandler;
 }
 

@@ -4,12 +4,17 @@ import logger from "./service/logger";
 import { VkService } from "./service/vk";
 import { TelegramApi } from "./api/telegram";
 import { HttpApi } from "./api/http";
+import { PostgresDB } from "./service/db/postgres";
 
 async function main() {
   try {
     const config = prepareConfig();
+
+    const db = new PostgresDB(config.postgres);
+    await db.connect();
+
     const telegram = new TelegramService(config.telegram);
-    const vkService = new VkService(config.vk, telegram, config.templates);
+    const vkService = new VkService(config.vk, telegram, config.templates, db);
 
     const telegramApi = new TelegramApi(telegram).listen();
     await telegram.start();
