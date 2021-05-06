@@ -1,4 +1,4 @@
-import { ConfigGroup, GroupInstance, VkEvent } from "../types";
+import { ConfigGroup, GroupChannel, GroupInstance, VkEvent } from "../types";
 import { VkEventHandler } from "./VkEventHandler";
 import { MessageNewHandler } from "./MessageNewHandler";
 import { StubHandler } from "./StubHandler";
@@ -12,7 +12,7 @@ interface Handler {
   new (
     type: VkEvent,
     group: ConfigGroup,
-    channel: string,
+    channel: GroupChannel,
     instance: GroupInstance,
     vk: VkService,
     telegram: TelegramService,

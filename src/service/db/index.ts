@@ -9,13 +9,13 @@ export interface Storage {
     tgMessageId: number,
     groupId: number,
     channel: string
-  ): Promise<Event>;
+  ): Promise<Event | undefined>;
   getEventById(
     type: VkEvent,
     eventId: number,
     groupId: number,
     channel: string
-  ): Promise<Event>;
+  ): Promise<Event | undefined>;
   createEvent(
     type: VkEvent,
     eventId: number,
@@ -23,7 +23,7 @@ export interface Storage {
     channel: string,
     tgMessageId: number,
     text: Record<any, any>
-  ): Promise<Event>;
+  ): Promise<Event | undefined>;
   createOrUpdateLike(
     messageId: number,
     channel: string,
@@ -31,7 +31,11 @@ export interface Storage {
     text: string
   ): Promise<Like>;
   getLikesFor(channel: string, messageId: number): Promise<Like[]>;
-  getLikeBy(channel: string, messageId: number, author: number): Promise<Like>;
-  createPost(eventId: number, text: string): Promise<Post>;
-  findPostByEvent(eventId: number): Promise<Post>;
+  getLikeBy(
+    channel: string,
+    messageId: number,
+    author: number
+  ): Promise<Like | undefined>;
+  createPost(eventId: number, text: string): Promise<Post | undefined>;
+  findPostByEvent(eventId: number): Promise<Post | undefined>;
 }

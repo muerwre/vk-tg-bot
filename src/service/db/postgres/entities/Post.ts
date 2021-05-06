@@ -9,13 +9,13 @@ import {
 @Entity()
 export class Post {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
   @Column()
-  eventId: number;
+  eventId!: number;
   @Column({ type: "text" })
-  text: string;
+  text!: string;
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }

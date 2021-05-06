@@ -10,7 +10,7 @@ export interface Config extends Record<string, any> {
   http: HttpConfig;
   telegram: TelegramConfig;
   vk: VkConfig;
-  logger?: LoggerConfig;
-  templates?: TemplateConfig;
-  postgres?: PostgresConfig;
+  logger: LoggerConfig;
+  templates: TemplateConfig;
+  postgres: PostgresConfig;
 }

@@ -1,4 +1,5 @@
 import { API, Upload, Updates } from "vk-io";
+import { WallPostType } from "vk-io/lib/api/schemas/objects";
 
 export interface VkConfig extends Record<string, any> {
   groups: ConfigGroup[];
@@ -17,6 +18,7 @@ export interface ConfigGroup {
 export interface GroupChannel {
   id: string;
   events: VkEvent[];
+  post_types: WallPostType;
 }
 
 export enum VkEvent {

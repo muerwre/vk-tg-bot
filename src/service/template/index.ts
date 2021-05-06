@@ -1,6 +1,6 @@
 import extract from "remark-extract-frontmatter";
 import frontmatter from "remark-frontmatter";
-import compiler from "retext-stringify";
+import stringify from "retext-stringify";
 import parser from "remark-parse";
 import unified from "unified";
 import { parse } from "yaml";
@@ -26,7 +26,7 @@ export class Template<
       }
 
       const processor = unified()
-        .use(compiler)
+        .use(stringify)
         .use(frontmatter)
         .use(extract, { yaml: parse })
         .use(removeFrontmatter)
@@ -43,7 +43,7 @@ export class Template<
   }
 
   /**
-   * Themes the tempalte with values
+   * Themes the template with values
    */
   public theme = (values: V) => {
     return hb.compile(this.template)(values);
@@ -54,6 +54,7 @@ export class Template<
    */
   public static registerHelpers() {
     hb.registerHelper("ifEq", function (arg1, arg2, options) {
+      // @ts-ignore
       return arg1 == arg2 ? options.fn(this) : options.inverse(this);
     });
   }

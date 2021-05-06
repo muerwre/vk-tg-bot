@@ -37,7 +37,7 @@ export class MessageNewHandler extends VkEventHandler<Fields, Values> {
     const parsed = this.template.theme({
       user,
       group: this.group,
-      text: context.text,
+      text: context?.text || "",
     });
 
     const extras: ExtraReplyMessage = {
@@ -46,7 +46,7 @@ export class MessageNewHandler extends VkEventHandler<Fields, Values> {
 
     this.appendButtons(extras, user.id);
 
-    await this.telegram.sendMessageToChan(this.channel, parsed, extras);
+    await this.telegram.sendMessageToChan(this.channel.id, parsed, extras);
 
     await next();
   };

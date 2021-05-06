@@ -29,7 +29,7 @@ export class VkService {
       throw new Error("No vk groups to handle. Specify them in config");
     }
 
-    this.endpoint = config.endpoint;
+    this.endpoint = config.endpoint || "/";
 
     this.groups = config.groups.reduce(
       (acc, group) => ({
@@ -121,7 +121,7 @@ export class VkService {
           const handler = new vkEventToHandler[event](
             event,
             group,
-            chan.id,
+            chan,
             instance,
             this,
             this.telegram,

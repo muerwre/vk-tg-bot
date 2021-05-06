@@ -9,17 +9,17 @@ import {
 @Entity()
 export class Like {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
   @Column()
-  messageId: number;
+  messageId!: number;
   @Column()
-  channel: string;
+  channel!: string;
   @Column({ type: "text" })
-  text: string;
+  text!: string;
   @Column()
-  author: number;
+  author!: number;
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
 }
