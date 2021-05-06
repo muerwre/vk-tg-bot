@@ -2,10 +2,9 @@ import { TelegramConfig, WebhookConfig } from "./types";
 import { Telegraf } from "telegraf";
 import logger from "../logger";
 import { Response } from "express";
-import { InputFile, Update } from "typegram";
+import { Update } from "typegram";
 import loggerTgMiddleware from "../logger/tg";
 import { ExtraReplyMessage } from "telegraf/typings/telegram-types";
-import axios from "axios";
 
 // import SocksProxyAgent from 'socks-proxy-agent';
 
