@@ -306,14 +306,9 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
    * Calculates, how much should we cut off the text to match photo caption limitations
    */
   private trimTextForPhoto = (text: string, user: UsersUserFull): string => {
-    // Full markup
-    const full = this.themeText(text, user);
-    // Rest info except text
-    const others = this.themeText("", user);
+    const withText = this.themeText(text, user);
+    const withoutText = this.themeText("", user);
 
-    // How much rest markup takes
-    const diff = full.length - others.length;
-
-    return full.slice(0, PHOTO_CAPTION_LIMIT - diff);
+    return withText.slice(0, PHOTO_CAPTION_LIMIT - withoutText.length);
   };
 }
