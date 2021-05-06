@@ -43,7 +43,7 @@ export class Template<
   }
 
   /**
-   * Themes the tempalte with values
+   * Themes the template with values
    */
   public theme = (values: V) => {
     return hb.compile(this.template)(values);
