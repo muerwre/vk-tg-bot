@@ -10,21 +10,21 @@ import { VkEvent } from "../../../vk/types";
 @Entity()
 export class Event {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
   @Column()
-  type: VkEvent;
+  type!: VkEvent;
   @Column()
-  vkEventId: number;
+  vkEventId!: number;
   @Column()
-  vkGroupId: number;
+  vkGroupId!: number;
   @Column()
-  channel: string;
+  channel!: string;
   @Column()
-  tgMessageId: number;
+  tgMessageId!: number;
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt!: Date;
   @Column("simple-json", { default: {}, nullable: false })
-  text: Record<any, any>;
+  text!: Record<any, any>;
 }

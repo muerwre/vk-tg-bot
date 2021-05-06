@@ -54,6 +54,7 @@ export class Template<
    */
   public static registerHelpers() {
     hb.registerHelper("ifEq", function (arg1, arg2, options) {
+      // @ts-ignore
       return arg1 == arg2 ? options.fn(this) : options.inverse(this);
     });
   }

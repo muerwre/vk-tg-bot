@@ -11,10 +11,10 @@ import { Post } from "./entities/Post";
 const entities = [path.join(__dirname, "./entities/*")];
 
 export class PostgresDB implements Storage {
-  private connection: Connection;
-  private events: Repository<Event>;
-  private likes: Repository<Like>;
-  private posts: Repository<Post>;
+  private connection!: Connection;
+  private events!: Repository<Event>;
+  private likes!: Repository<Like>;
+  private posts!: Repository<Post>;
 
   constructor(private config: PostgresConfig) {}
 

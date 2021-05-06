@@ -12,7 +12,8 @@
     "target": "es2017",
     "baseUrl": ".",
     "paths": {},
-    "lib": ["esnext"]
+    "lib": ["esnext"],
+    "strict": true
   },
   "include": [
     "./**/*",

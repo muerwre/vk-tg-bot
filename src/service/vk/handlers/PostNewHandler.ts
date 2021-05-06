@@ -21,7 +21,7 @@ type UrlPrefix = string;
 type ExtraGenerator = (
   text: string,
   eventId?: number
-) => Promise<InlineKeyboardButton[]>;
+) => Promise<InlineKeyboardButton[] | undefined>;
 
 interface Fields {
   image?: boolean;
@@ -35,6 +35,7 @@ interface Values {
   user?: UsersUserFull;
   group: ConfigGroup;
   text: string;
+  type?: string;
 }
 
 type LikeCtx = Composer.Context<CallbackQueryUpdate> & { match: string[] };
@@ -52,12 +53,9 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
 
   public execute = async (context: WallPostContext, next: NextMiddleware) => {
     const id = context?.wall?.id;
+    const postType = context?.wall?.postType;
 
-    if (
-      context.isRepost ||
-      !PostNewHandler.isValidPostType(context?.wall?.postType) ||
-      !id
-    ) {
+    if (context.isRepost || !this.isValidPostType(postType) || !id) {
       await next();
       return;
     }
@@ -75,9 +73,9 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       ? await this.getUserByID(String(context.wall.signerId))
       : undefined;
 
-    const text = context.wall.text.trim();
+    const text = context.wall?.text?.trim() || "";
 
-    const parsed = this.themeText(text, user);
+    const parsed = this.themeText(text, postType, user);
 
     const extras: ExtraReplyMessage = {
       disable_web_page_preview: true,
@@ -95,13 +93,17 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
     if (hasThumb) {
       const thumb = await images.find((img) => img.mediumSizeUrl);
       msg = await this.telegram.sendPhotoToChan(
-        this.channel,
-        this.trimTextForPhoto(text, user),
-        thumb.mediumSizeUrl,
+        this.channel.id,
+        this.trimTextForPhoto(text, postType, user),
+        thumb?.mediumSizeUrl!,
         extras
       );
     } else {
-      msg = await this.telegram.sendMessageToChan(this.channel, parsed, extras);
+      msg = await this.telegram.sendMessageToChan(
+        this.channel.id,
+        parsed,
+        extras
+      );
     }
 
     const event = await this.createEvent(
@@ -109,7 +111,8 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       msg.message_id,
       context.wall.toJSON()
     );
-    await this.db.createPost(event.id, context.wall.text);
+
+    await this.db.createPost(event!.id, context?.wall?.text || "");
 
     await next();
   };
@@ -117,8 +120,16 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
   /**
    * Checks if event of type we can handle
    */
-  public static isValidPostType(type: string): boolean {
-    return type === "post";
+  private isValidPostType(type?: string): boolean {
+    if (!type) {
+      return false;
+    }
+
+    if (!this.channel.post_types) {
+      return type === "post";
+    }
+
+    return this.channel.post_types.includes(type);
   }
 
   /**
@@ -127,7 +138,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
   private createKeyboard = async (
     text: string,
     eventId?: number
-  ): Promise<InlineKeyboardMarkup> => {
+  ): Promise<InlineKeyboardMarkup | undefined> => {
     const { buttons } = this.template.fields;
 
     if (!buttons?.length) {
@@ -137,7 +148,10 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
     const rows = await Promise.all(
       buttons.map((button) => this.extrasGenerators[button](text, eventId))
     );
-    const inline_keyboard = rows.filter((el) => el && el.length);
+
+    const inline_keyboard = rows.filter(
+      (el) => el && el.length
+    ) as InlineKeyboardButton[][];
 
     if (!inline_keyboard.length) {
       return;
@@ -153,13 +167,13 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
     const links = this.template.fields.links;
 
     if (!links) {
-      return [];
+      return;
     }
 
     const urls = extractURLs(text);
 
     if (!urls) {
-      return [];
+      return;
     }
 
     return urls
@@ -170,7 +184,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
 
         return label ? { text: links[label], url: url.toString() } : undefined;
       })
-      .filter((el) => el);
+      .filter((el) => el) as InlineKeyboardButton[];
   };
 
   /**
@@ -179,7 +193,15 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
   private generateLikes: ExtraGenerator = async (text, eventId) => {
     if (eventId) {
       const event = await this.getEventById(eventId);
-      const likes = await this.db.getLikesFor(this.channel, event.tgMessageId);
+      if (!event) {
+        throw new Error(`Can't find event`);
+      }
+
+      const likes = await this.db.getLikesFor(
+        this.channel.id,
+        event.tgMessageId
+      );
+
       const withCount = likes.reduce(
         (acc, like) => ({
           ...acc,
@@ -209,7 +231,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
   };
 
   /**
-   * Adds needed listeners
+   * Adds needed listeners for telegram
    */
   protected onInit = () => {
     if (this.template.fields.likes) {
@@ -227,7 +249,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
    * Reacts to like button press
    */
   private onLikeAction = async (ctx: LikeCtx, next) => {
-    const id = ctx.update.callback_query.message.message_id;
+    const id = ctx.update.callback_query?.message?.message_id;
     const author = ctx.update.callback_query.from.id;
     const [, channel, emo] = ctx.match;
     const event = await this.getEventByTgMessageId(id);
@@ -237,7 +259,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       !emo ||
       !id ||
       !event ||
-      channel != this.channel ||
+      channel != this.channel.id ||
       !this.likes.includes(emo)
     ) {
       await next();
@@ -261,7 +283,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
     const markup = await this.createKeyboard(post.text, event.id);
 
     await ctx.telegram.editMessageReplyMarkup(
-      ctx.chat.id,
+      ctx.chat?.id,
       id,
       ctx.inlineMessageId,
       markup
@@ -274,6 +296,9 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
     next();
   };
 
+  /**
+   * Creates or updates like for {author} on {messageId} with {emo}
+   */
   private createOrUpdateLike = async (
     author: number,
     messageId: number,
@@ -281,23 +306,31 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
   ) => {
     return await this.db.createOrUpdateLike(
       messageId,
-      this.channel,
+      this.channel.id,
       author,
       emo
     );
   };
 
+  /**
+   * Gets like by {author} on {messageId}
+   */
   private getLike = async (author: number, messageId: number) => {
-    return await this.db.getLikeBy(this.channel, messageId, author);
+    return await this.db.getLikeBy(this.channel.id, messageId, author);
   };
 
   /**
    * Applies template theming to photos
    */
-  private themeText = (text: string, user?: UsersUserFull): string => {
+  private themeText = (
+    text: string,
+    type?: string,
+    user?: UsersUserFull
+  ): string => {
     return this.template.theme({
       user,
       group: this.group,
+      type,
       text,
     });
   };
@@ -305,10 +338,24 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
   /**
    * Calculates, how much should we cut off the text to match photo caption limitations
    */
-  private trimTextForPhoto = (text: string, user: UsersUserFull): string => {
-    const withText = this.themeText(text, user);
-    const withoutText = this.themeText("", user);
+  private trimTextForPhoto = (
+    text: string,
+    type?: string,
+    user?: UsersUserFull
+  ): string => {
+    const withText = this.themeText(text, type, user);
 
-    return withText.slice(0, PHOTO_CAPTION_LIMIT - withoutText.length);
+    if (withText.length < PHOTO_CAPTION_LIMIT) {
+      return withText;
+    }
+
+    const withoutText = this.themeText("", type, user);
+    const suffix = "...";
+    const trimmed = text.slice(
+      0,
+      PHOTO_CAPTION_LIMIT - withoutText.length - suffix.length
+    );
+
+    return this.themeText(`${trimmed}${suffix}`, type, user);
   };
 }

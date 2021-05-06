@@ -13,5 +13,5 @@ export const extractURLs = (text: string): URL[] => {
         return;
       }
     })
-    .filter((el) => el);
+    .filter((el) => el) as URL[];
 };

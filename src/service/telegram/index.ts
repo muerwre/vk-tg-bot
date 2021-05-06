@@ -40,7 +40,7 @@ export class TelegramService {
     if (isWebhookEnabled) {
       await this.bot.telegram
         .deleteWebhook()
-        .then(() => this.bot.telegram.setWebhook(this.webhook.url))
+        .then(() => this.bot.telegram.setWebhook(this.webhook.url!))
         .then(async () => {
           const info = await this.bot.telegram.getWebhookInfo();
           if (!info.url) {
@@ -71,7 +71,7 @@ export class TelegramService {
    * Checks webhook availability
    */
   private getWebhookAvailable = async (): Promise<boolean> => {
-    const isWebhookEnabled = this.webhook.enabled && this.webhook.url;
+    const isWebhookEnabled = !!this.webhook.enabled && !!this.webhook.url;
     // TODO: test this.webhook.url with axios instead of 'true'
     return isWebhookEnabled && true;
   };

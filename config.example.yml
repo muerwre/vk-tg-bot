@@ -23,6 +23,7 @@ templates:
 #      testResponse: 'testResponseCode'
 #      secretKey: 'groupSecretKey'
 #      apiKey: 'callbackApiKey'
+#      post_types: ['post','copy','reply','postpone','suggest']
 #      channels:
 #        - id: '@pogonia_test_chan'
 #          events:

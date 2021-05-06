@@ -1,5 +1,5 @@
 import { NextMiddleware } from "middleware-io";
-import { ConfigGroup, GroupInstance, VkEvent } from "../types";
+import { ConfigGroup, GroupChannel, GroupInstance, VkEvent } from "../types";
 import { VkService } from "../index";
 import { TelegramService } from "../../telegram";
 import { Template } from "../../template";
@@ -13,7 +13,7 @@ export class VkEventHandler<
   public constructor(
     protected type: VkEvent,
     protected group: ConfigGroup,
-    protected channel: string,
+    protected channel: GroupChannel,
     protected instance: GroupInstance,
     protected vk: VkService,
     protected telegram: TelegramService,
@@ -60,7 +60,7 @@ export class VkEventHandler<
       this.type,
       id,
       this.group.id,
-      this.channel
+      this.channel.id
     );
   };
 
@@ -78,7 +78,7 @@ export class VkEventHandler<
       this.type,
       tgMessageId,
       this.group.id,
-      this.channel
+      this.channel.id
     );
   };
 
@@ -94,7 +94,7 @@ export class VkEventHandler<
       this.type,
       id,
       this.group.id,
-      this.channel,
+      this.channel.id,
       tgMessageId,
       text
     );
