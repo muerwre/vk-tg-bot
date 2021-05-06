@@ -60,7 +60,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       return;
     }
 
-    const exist = await this.getEventById(id);
+    const exist = await this.getEventByVkEventId(id);
     if (exist) {
       logger.warn(
         `received duplicate entry for ${this.group.name}, ${this.type}, ${id}`
@@ -212,13 +212,13 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
 
       return this.likes.map((like) => ({
         text: withCount[like] ? `${like} ${withCount[like]}` : like,
-        callback_data: `/like ${this.channel} ${like}`,
+        callback_data: `/like ${this.channel.id} ${like}`,
       }));
     }
 
     return this.likes.map((like) => ({
       text: like,
-      callback_data: `/like ${this.channel} ${like}`,
+      callback_data: `/like ${this.channel.id} ${like}`,
     }));
   };
 
@@ -254,11 +254,16 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
     const [, channel, emo] = ctx.match;
     const event = await this.getEventByTgMessageId(id);
 
+    if (!event) {
+      logger.warn(`event not found for tgMessageId ${id}`);
+      await next();
+      return;
+    }
+
     if (
       !channel ||
       !emo ||
       !id ||
-      !event ||
       channel != this.channel.id ||
       !this.likes.includes(emo)
     ) {

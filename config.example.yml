@@ -1,10 +1,10 @@
 http:
-  port: 3002
+  port: 80
 telegram:
   # Get it from bot father
   key: ''
   webhook:
-    url: https://something.org:3002/webhook
+    url: https://something.org/webhook
     enabled: false
 postgres:
   uri: postgres://user:password@db/bot

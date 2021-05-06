@@ -19,6 +19,8 @@ export class PostgresDB implements Storage {
   constructor(private config: PostgresConfig) {}
 
   connect = async () => {
+    logger.info(`connecting to ${this.config.uri}`);
+
     this.connection = await createConnection({
       type: "postgres",
       url: this.config.uri,
@@ -50,17 +52,22 @@ export class PostgresDB implements Storage {
     });
   };
 
-  getEventById = async (
+  getEventByVKEventId = async (
     type: VkEvent,
-    id: number,
+    vkEventId: number,
     vkGroupId: number,
     channel: string
   ) => {
     return await this.events.findOne({
       type,
-      id,
+      vkEventId,
       vkGroupId,
       channel,
+    });
+  };
+  getEventById = async (id: number) => {
+    return await this.events.findOne({
+      id,
     });
   };
 

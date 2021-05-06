@@ -56,7 +56,18 @@ export class VkEventHandler<
       return undefined;
     }
 
-    return await this.db.getEventById(
+    return await this.db.getEventById(id);
+  };
+
+  /**
+   * Checks for duplicates
+   */
+  getEventByVkEventId = async (id?: number): Promise<Event | undefined> => {
+    if (!id) {
+      return undefined;
+    }
+
+    return await this.db.getEventByVKEventId(
       this.type,
       id,
       this.group.id,

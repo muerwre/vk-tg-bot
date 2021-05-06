@@ -10,7 +10,8 @@ export interface Storage {
     groupId: number,
     channel: string
   ): Promise<Event | undefined>;
-  getEventById(
+  getEventById(eventId: number): Promise<Event | undefined>;
+  getEventByVKEventId(
     type: VkEvent,
     eventId: number,
     groupId: number,
