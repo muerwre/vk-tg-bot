@@ -17,5 +17,5 @@
 {{text}}
 
 {{#if user}}
-[{{user.first_name}} {{user.last_name}}](https://vk.com/id{{user.id}})
+-- [{{user.first_name}} {{user.last_name}}](https://vk.com/id{{user.id}})
 {{/if}}

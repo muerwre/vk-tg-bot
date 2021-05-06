@@ -2,9 +2,10 @@ import { TelegramConfig, WebhookConfig } from "./types";
 import { Telegraf } from "telegraf";
 import logger from "../logger";
 import { Response } from "express";
-import { Update } from "typegram";
+import { InputFile, Update } from "typegram";
 import loggerTgMiddleware from "../logger/tg";
 import { ExtraReplyMessage } from "telegraf/typings/telegram-types";
+import axios from "axios";
 
 // import SocksProxyAgent from 'socks-proxy-agent';
 
@@ -86,5 +87,21 @@ export class TelegramService {
   ) => {
     logger.debug(`sending message "${message}" to chan "${channel}"`);
     return await this.bot.telegram.sendMessage(channel, message, extra);
+  };
+
+  /**
+   * Sends simple message to channel
+   */
+  public sendPhotoToChan = async (
+    channel: string,
+    caption: string,
+    src: string,
+    extra?: ExtraReplyMessage
+  ) => {
+    logger.debug(`sending photo message "${caption}" to chan "${channel}"`);
+    return await this.bot.telegram.sendPhoto(channel, src, {
+      ...extra,
+      caption,
+    });
   };
 }

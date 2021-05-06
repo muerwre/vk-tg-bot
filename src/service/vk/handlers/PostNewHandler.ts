@@ -4,7 +4,12 @@ import { NextMiddleware } from "middleware-io";
 import { UsersUserFull } from "vk-io/lib/api/schemas/objects";
 import { ConfigGroup } from "../types";
 import { ExtraReplyMessage } from "telegraf/typings/telegram-types";
-import { InlineKeyboardButton, InlineKeyboardMarkup, Update } from "typegram";
+import {
+  InlineKeyboardButton,
+  InlineKeyboardMarkup,
+  Message,
+  Update,
+} from "typegram";
 import { keys } from "ramda";
 import { extractURLs } from "../../../utils/extract";
 import logger from "../../logger";
@@ -33,6 +38,8 @@ interface Values {
 }
 
 type LikeCtx = Composer.Context<CallbackQueryUpdate> & { match: string[] };
+
+const PHOTO_CAPTION_LIMIT = 1000;
 
 export class PostNewHandler extends VkEventHandler<Fields, Values> {
   constructor(...props: any) {
@@ -70,22 +77,32 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
 
     const text = context.wall.text.trim();
 
-    const parsed = this.template.theme({
-      user,
-      group: this.group,
-      text,
-    });
+    const parsed = this.themeText(text, user);
 
     const extras: ExtraReplyMessage = {
       disable_web_page_preview: true,
       reply_markup: await this.createKeyboard(text),
     };
 
-    const msg = await this.telegram.sendMessageToChan(
-      this.channel,
-      parsed,
-      extras
-    );
+    let msg: Message;
+
+    const images = context.wall.getAttachments("photo");
+    const hasThumb =
+      this.template.fields.image &&
+      images.length &&
+      images.some((img) => img.mediumSizeUrl);
+
+    if (hasThumb) {
+      const thumb = await images.find((img) => img.mediumSizeUrl);
+      msg = await this.telegram.sendPhotoToChan(
+        this.channel,
+        this.trimTextForPhoto(text, user),
+        thumb.mediumSizeUrl,
+        extras
+      );
+    } else {
+      msg = await this.telegram.sendMessageToChan(this.channel, parsed, extras);
+    }
 
     const event = await this.createEvent(
       id,
@@ -209,7 +226,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
   /**
    * Reacts to like button press
    */
-  onLikeAction = async (ctx: LikeCtx, next) => {
+  private onLikeAction = async (ctx: LikeCtx, next) => {
     const id = ctx.update.callback_query.message.message_id;
     const author = ctx.update.callback_query.from.id;
     const [, channel, emo] = ctx.match;
@@ -257,7 +274,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
     next();
   };
 
-  createOrUpdateLike = async (
+  private createOrUpdateLike = async (
     author: number,
     messageId: number,
     emo: string
@@ -270,7 +287,33 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
     );
   };
 
-  getLike = async (author: number, messageId: number) => {
+  private getLike = async (author: number, messageId: number) => {
     return await this.db.getLikeBy(this.channel, messageId, author);
+  };
+
+  /**
+   * Applies template theming to photos
+   */
+  private themeText = (text: string, user?: UsersUserFull): string => {
+    return this.template.theme({
+      user,
+      group: this.group,
+      text,
+    });
+  };
+
+  /**
+   * Calculates, how much should we cut off the text to match photo caption limitations
+   */
+  private trimTextForPhoto = (text: string, user: UsersUserFull): string => {
+    // Full markup
+    const full = this.themeText(text, user);
+    // Rest info except text
+    const others = this.themeText("", user);
+
+    // How much rest markup takes
+    const diff = full.length - others.length;
+
+    return full.slice(0, PHOTO_CAPTION_LIMIT - diff);
   };
 }
