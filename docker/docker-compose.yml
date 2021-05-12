@@ -29,7 +29,7 @@ services:
       - db
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost", "||", "kill", "-s", "2", "1" ]
-      interval: 5m
+      interval: 1h
       timeout: 1m
 volumes:
   bot-db:
