@@ -18,7 +18,7 @@ export interface ConfigGroup {
 export interface GroupChannel {
   id: string;
   events: VkEvent[];
-  post_types: WallPostType;
+  post_types: WallPostType[];
 }
 
 export enum VkEvent {

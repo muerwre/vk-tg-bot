@@ -1,7 +1,7 @@
 import { VkEventHandler } from "./VkEventHandler";
 import { WallPostContext } from "vk-io";
 import { NextMiddleware } from "middleware-io";
-import { UsersUserFull } from "vk-io/lib/api/schemas/objects";
+import { UsersUserFull, WallPostType } from "vk-io/lib/api/schemas/objects";
 import { ConfigGroup } from "../types";
 import { ExtraReplyMessage } from "telegraf/typings/telegram-types";
 import {
@@ -56,7 +56,19 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
     const id = context?.wall?.id;
     const postType = context?.wall?.postType;
 
-    if (context.isRepost || !this.isValidPostType(postType) || !id) {
+    if (context.isRepost || !id) {
+      await next();
+      return;
+    }
+
+    if (!this.isValidPostType(postType)) {
+      logger.info(
+        `skipping wall_post_new for ${
+          this.group.name
+        }#${id} since it have type '${postType}', which is not in [${this.channel.post_types.join(
+          ","
+        )}]`
+      );
       await next();
       return;
     }
@@ -134,7 +146,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       return type === "post";
     }
 
-    return this.channel.post_types.includes(type);
+    return this.channel.post_types.includes(type as WallPostType);
   }
 
   /**
