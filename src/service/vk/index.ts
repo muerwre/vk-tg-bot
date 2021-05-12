@@ -133,4 +133,11 @@ export class VkService {
       )
     );
   }
+
+  /**
+   * Performs healthcheck for telegram
+   */
+  public healthcheck = async () => {
+    await this.db.healthcheck();
+  };
 }

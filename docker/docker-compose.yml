@@ -27,6 +27,10 @@ services:
     entrypoint: ./wait-for-it.sh -t 90 db:5432 -- node ./index.js
     depends_on:
       - db
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost", "||", "kill", "-s", "2", "1" ]
+      interval: 5m
+      timeout: 1m
 volumes:
   bot-db:
   node_modules:

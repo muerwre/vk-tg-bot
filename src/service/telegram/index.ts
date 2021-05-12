@@ -96,11 +96,22 @@ export class TelegramService {
     });
   };
 
-  stop = (signal: string) => {
+  /**
+   * Stops service
+   * @param signal
+   */
+  public stop = (signal: string) => {
     if (!this.isWebhookEnabled) {
       return;
     }
 
     this.bot.stop(signal);
+  };
+
+  /**
+   * Performs healthcheck for telegram
+   */
+  public healthcheck = async () => {
+    await this.bot.telegram.getMe();
   };
 }

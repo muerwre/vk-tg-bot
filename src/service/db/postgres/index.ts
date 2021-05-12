@@ -127,4 +127,8 @@ export class PostgresDB implements Storage {
   createPost = async (eventId: number, text: string, vkPostId: number) => {
     return this.posts.save({ eventId, text, vkPostId });
   };
+
+  healthcheck = async () => {
+    await this.connection.query("SELECT 1");
+  };
 }

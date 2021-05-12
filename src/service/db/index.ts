@@ -43,4 +43,5 @@ export interface Storage {
     vkPostId: number
   ): Promise<Post | undefined>;
   findPostByEvent(eventId: number): Promise<Post | undefined>;
+  healthcheck(): Promise<void>;
 }

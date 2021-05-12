@@ -53,11 +53,12 @@ export class HttpApi {
       const url = new URL(this.webhook.url);
       logger.info(`using webhook at ${url.pathname}`);
       this.app.post(url.pathname, this.handleWebhook);
-      this.app.get(url.pathname, this.testWebhook);
+      this.app.get(url.pathname, this.healthcheck);
     }
 
     // VK event handler
     this.app.post(this.vk.endpoint, this.vk.handle);
+    this.app.get("/", this.healthcheck);
   }
 
   /**
@@ -71,7 +72,12 @@ export class HttpApi {
   /**
    * Just returns 200
    */
-  private testWebhook = async (req: Request, res: Response) => {
-    res.sendStatus(200);
+  private healthcheck = async (req: Request, res: Response) => {
+    try {
+      await Promise.all([this.telegram.healthcheck(), this.vk.healthcheck()]);
+      res.sendStatus(200);
+    } catch (e) {
+      res.sendStatus(501);
+    }
   };
 }
