@@ -56,7 +56,7 @@ steps:
       script_stop: true
       script:
         - mkdir -p $${BUILD_PATH}/${DRONE_BRANCH}
-        - rm -rf $${BUILD_PATH}/${DRONE_BRANCH}/*
+        - rm -rf $${BUILD_PATH}/${DRONE_BRANCH}/* $${BUILD_PATH}/${DRONE_BRANCH}/.*
         - cd $${BUILD_PATH}/${DRONE_BRANCH}
         - tar -xjf /tmp/tg-bot-${DRONE_BRANCH}/app.tar.bz2 -C ./
         - cp $${ENV_PATH}/${DRONE_BRANCH}/config.yml $${BUILD_PATH}/${DRONE_BRANCH}
