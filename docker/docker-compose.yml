@@ -1,7 +1,7 @@
 version: '3.4'
 services:
   db:
-    container_name: bot-db-${DRONE_BRANCH}
+    container_name: bot-${DRONE_BRANCH}__db
     image: postgres:11-alpine
     environment:
       POSTGRES_USER: user
@@ -11,7 +11,7 @@ services:
       - bot-db:/var/lib/postgresql/data
       - /etc/localtime:/etc/localtime:ro
   app:
-    container_name: bot-app-${DRONE_BRANCH}
+    container_name: bot-${DRONE_BRANCH}
     restart: always
     environment:
       PORT: 80
