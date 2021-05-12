@@ -59,7 +59,7 @@ steps:
         - mkdir -p $${BUILD_PATH}/${DRONE_BRANCH}
         - cd $${BUILD_PATH}/${DRONE_BRANCH}
         - tar -xjf /tmp/tg-bot-${DRONE_BRANCH}/app.tar.bz2 -C ./
-        - cp $${ENV_PATH}/${DRONE_BRANCH}/config.yml $${BUILD_PATH}/${DRONE_BRANCH}
+        - cp -a $${ENV_PATH}/${DRONE_BRANCH}/. $${BUILD_PATH}/${DRONE_BRANCH}
         - docker-compose -f ./docker/docker-compose.yml build
         - docker-compose -f ./docker/docker-compose.yml up -d
   - name: telegram_notify

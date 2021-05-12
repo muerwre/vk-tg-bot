@@ -3,8 +3,6 @@ services:
   db:
     container_name: bot-db
     image: postgres:11-alpine
-    ports:
-      - 5432:5432
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
@@ -24,7 +22,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - node_modules:/app/node_modules
-    entrypoint: node ./index.js
+    entrypoint: ./wait-for-it.sh -t 90 db:5432 -- node ./index.js
     depends_on:
       - db
 volumes:
