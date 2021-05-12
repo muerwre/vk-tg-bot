@@ -9,6 +9,7 @@ import {
   InlineKeyboardMarkup,
   Message,
   Update,
+  User,
 } from "typegram";
 import { keys } from "ramda";
 import { extractURLs } from "../../../utils/extract";
@@ -332,7 +333,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       markup
     );
 
-    const who = ctx.update?.callback_query?.from?.username || "someone";
+    const who = this.getNameFromContext(ctx?.update?.callback_query?.from);
     const short = post.text.slice(0, 10);
 
     logger.info(
@@ -410,4 +411,13 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
    */
   generateVkPostUrl = (postId?: number) =>
     `https://vk.com/wall-${this.group.id}_${postId}`;
+
+  /**
+   * Returns fullname from user of update callback
+   */
+  getNameFromContext = (from: User): string =>
+    [from?.first_name, from?.last_name]
+      .filter((el) => el)
+      .join(" ")
+      .trim() || "someone";
 }
