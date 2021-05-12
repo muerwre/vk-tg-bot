@@ -28,9 +28,10 @@ services:
     depends_on:
       - db
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost", "||", "kill", "-s", "2", "1" ]
-      interval: 1h
+      test: [ "CMD-SHELL", "curl -f http://localhost || kill -s 2 1" ]
+      interval: 30m
       timeout: 1m
+      start_period: 5m
 volumes:
   bot-db:
   node_modules:
