@@ -1,6 +1,7 @@
 import extract from "remark-extract-frontmatter";
 import frontmatter from "remark-frontmatter";
-import stringify from "retext-stringify";
+import stringify from "remark-stringify";
+import textStringify from "retext-stringify";
 import parser from "remark-parse";
 import unified from "unified";
 import { parse } from "yaml";
@@ -57,6 +58,17 @@ export class Template<
       // @ts-ignore
       return arg1 == arg2 ? options.fn(this) : options.inverse(this);
     });
+  }
+
+  public static cleanText(text: string) {
+    const processor = unified()
+      .use(textStringify)
+      .use(frontmatter)
+      .use(extract, { yaml: parse })
+      .use(removeFrontmatter)
+      .use(parser);
+
+    return processor.processSync(text).contents.toString();
   }
 }
 

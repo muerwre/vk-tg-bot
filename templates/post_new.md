@@ -11,11 +11,15 @@
 ---
 {{!-- 
     use handlebars template here
-    available variables are: text, user, group
+    available variables are: text, user, group, type
     (see PostNewHandler) 
 --}}
+{{#ifEq type 'suggest'}}
+Предложка:
+
+{{/ifEq}}
 {{text}}
 
 {{#if user}}
--- [{{user.first_name}} {{user.last_name}}](https://vk.com/id{{user.id}})
+[{{user.first_name}} {{user.last_name}}](https://vk.com/id{{user.id}})
 {{/if}}

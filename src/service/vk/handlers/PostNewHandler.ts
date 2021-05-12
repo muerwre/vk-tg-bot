@@ -15,6 +15,7 @@ import { extractURLs } from "../../../utils/extract";
 import logger from "../../logger";
 import Composer from "telegraf";
 import CallbackQueryUpdate = Update.CallbackQueryUpdate;
+import { Template } from "../../template";
 
 type Button = "links" | "likes" | "more";
 type UrlPrefix = string;
@@ -92,6 +93,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
 
     const extras: ExtraReplyMessage = {
       disable_web_page_preview: true,
+      parse_mode: "Markdown",
       reply_markup: await this.createKeyboard(text, undefined, context.wall.id),
     };
 
@@ -372,7 +374,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       user,
       group: this.group,
       type,
-      text,
+      text: Template.cleanText(text),
     });
   };
 
