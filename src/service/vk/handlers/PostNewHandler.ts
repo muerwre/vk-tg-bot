@@ -416,7 +416,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
    * Returns fullname from user of update callback
    */
   getNameFromContext = (from: User): string =>
-    [from?.first_name, from?.last_name, from.username && `@${from.username}`]
+    [from?.first_name, from?.last_name, from.username && `(@${from.username})`]
       .filter((el) => el)
       .join(" ")
       .trim() || "someone";
