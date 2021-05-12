@@ -25,6 +25,8 @@ async function main() {
 
     await httpApi.listen();
     await telegramApi.probe();
+
+    logger.info("bot successfully started");
   } catch (e) {
     logger.error(e.message);
   }

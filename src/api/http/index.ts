@@ -41,7 +41,9 @@ export class HttpApi {
   public async listen() {
     const httpServer = http.createServer(this.app);
     httpServer.listen(this.props.port);
-    logger.info(`http api listening at ${this.props.port}`);
+    logger.info(
+      `http api listening for ${this.vk.endpoint} at localhost:${this.props.port}`
+    );
   }
 
   /**
