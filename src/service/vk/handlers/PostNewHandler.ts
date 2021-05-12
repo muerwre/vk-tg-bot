@@ -16,11 +16,12 @@ import logger from "../../logger";
 import Composer from "telegraf";
 import CallbackQueryUpdate = Update.CallbackQueryUpdate;
 
-type Button = "links" | "likes";
+type Button = "links" | "likes" | "more";
 type UrlPrefix = string;
 type ExtraGenerator = (
   text: string,
-  eventId?: number
+  eventId?: number,
+  postId?: number
 ) => Promise<InlineKeyboardButton[] | undefined>;
 
 interface Fields {
@@ -79,7 +80,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
 
     const extras: ExtraReplyMessage = {
       disable_web_page_preview: true,
-      reply_markup: await this.createKeyboard(text),
+      reply_markup: await this.createKeyboard(text, undefined, context.wall.id),
     };
 
     let msg: Message;
@@ -112,7 +113,11 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       context.wall.toJSON()
     );
 
-    await this.db.createPost(event!.id, context?.wall?.text || "");
+    await this.db.createPost(
+      event!.id,
+      context?.wall?.text || "",
+      context.wall.id
+    );
 
     await next();
   };
@@ -137,7 +142,8 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
    */
   private createKeyboard = async (
     text: string,
-    eventId?: number
+    eventId?: number,
+    postId?: number
   ): Promise<InlineKeyboardMarkup | undefined> => {
     const { buttons } = this.template.fields;
 
@@ -146,7 +152,9 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
     }
 
     const rows = await Promise.all(
-      buttons.map((button) => this.extrasGenerators[button](text, eventId))
+      buttons.map((button) =>
+        this.extrasGenerators[button](text, eventId, postId)
+      )
     );
 
     const inline_keyboard = rows.filter(
@@ -185,6 +193,17 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
         return label ? { text: links[label], url: url.toString() } : undefined;
       })
       .filter((el) => el) as InlineKeyboardButton[];
+  };
+
+  /**
+   * Generates read more button
+   */
+  private generateReadMore: ExtraGenerator = async (text, eventId, postId) => {
+    const label = this.template.fields.link_text;
+
+    if (!postId || !label) return [];
+
+    return [{ text: label, url: `${postId}` }];
   };
 
   /**
@@ -228,6 +247,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
   private extrasGenerators: Record<Button, ExtraGenerator> = {
     links: this.generateLinks,
     likes: this.generateLikes,
+    more: this.generateReadMore,
   };
 
   /**
@@ -285,7 +305,11 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
 
     await this.createOrUpdateLike(author, event.tgMessageId, emo);
 
-    const markup = await this.createKeyboard(post.text, event.id);
+    const markup = await this.createKeyboard(
+      post.text,
+      event.id,
+      post.vkPostId
+    );
 
     await ctx.telegram.editMessageReplyMarkup(
       ctx.chat?.id,

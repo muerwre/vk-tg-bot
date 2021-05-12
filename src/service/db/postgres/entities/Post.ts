@@ -14,6 +14,8 @@ export class Post {
   eventId!: number;
   @Column({ type: "text" })
   text!: string;
+  @Column()
+  vkPostId!: number;
   @CreateDateColumn()
   createdAt!: Date;
   @UpdateDateColumn()

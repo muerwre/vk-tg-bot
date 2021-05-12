@@ -1,6 +1,6 @@
 ---
     image: true
-    buttons: [likes,links]
+    buttons: [likes,links,more]
     link_text: Пост полностью
     links:
         https://map.vault48.org/: Посмотреть карту

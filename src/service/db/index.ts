@@ -37,6 +37,10 @@ export interface Storage {
     messageId: number,
     author: number
   ): Promise<Like | undefined>;
-  createPost(eventId: number, text: string): Promise<Post | undefined>;
+  createPost(
+    eventId: number,
+    text: string,
+    vkPostId: number
+  ): Promise<Post | undefined>;
   findPostByEvent(eventId: number): Promise<Post | undefined>;
 }

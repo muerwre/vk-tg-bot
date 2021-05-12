@@ -124,7 +124,7 @@ export class PostgresDB implements Storage {
     return this.posts.findOne({ eventId });
   };
 
-  createPost = async (eventId: number, text: string) => {
-    return this.posts.save({ eventId, text });
+  createPost = async (eventId: number, text: string, vkPostId: number) => {
+    return this.posts.save({ eventId, text, vkPostId });
   };
 }
