@@ -27,17 +27,18 @@ export class TelegramService {
     this.bot = new Telegraf(props.key, options);
     this.bot.use(loggerTgMiddleware);
 
-    process.once("SIGINT", () => this.bot.stop("SIGINT"));
-    process.once("SIGTERM", () => this.bot.stop("SIGTERM"));
+    process.once("SIGINT", () => this.stop("SIGINT"));
+    process.once("SIGTERM", () => this.stop("SIGTERM"));
   }
 
+  get isWebhookEnabled() {
+    return !!this.webhook.enabled && !!this.webhook.url;
+  }
   /**
    * Connects to telegram
    */
   public async start() {
-    const isWebhookEnabled = await this.getWebhookAvailable();
-
-    if (isWebhookEnabled) {
+    if (this.isWebhookEnabled) {
       await this.bot.telegram
         .deleteWebhook()
         .then(() => this.bot.telegram.setWebhook(this.webhook.url!))
@@ -68,15 +69,6 @@ export class TelegramService {
   }
 
   /**
-   * Checks webhook availability
-   */
-  private getWebhookAvailable = async (): Promise<boolean> => {
-    const isWebhookEnabled = !!this.webhook.enabled && !!this.webhook.url;
-    // TODO: test this.webhook.url with axios instead of 'true'
-    return isWebhookEnabled && true;
-  };
-
-  /**
    * Sends simple message to channel
    */
   public sendMessageToChan = async (
@@ -102,5 +94,13 @@ export class TelegramService {
       ...extra,
       caption,
     });
+  };
+
+  stop = (signal: string) => {
+    if (!this.isWebhookEnabled) {
+      return;
+    }
+
+    this.bot.stop(signal);
   };
 }
