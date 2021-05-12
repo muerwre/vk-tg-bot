@@ -11,8 +11,8 @@ import { corsMiddleware, errorMiddleware } from "./middleware";
 import { WebhookConfig } from "../../service/telegram/types";
 
 export class HttpApi {
-  app: Express;
-  webhook: WebhookConfig;
+  app!: Express;
+  webhook!: WebhookConfig;
 
   constructor(
     private props: HttpConfig,

@@ -16,10 +16,15 @@ async function main() {
     const telegram = new TelegramService(config.telegram);
     const vkService = new VkService(config.vk, telegram, config.templates, db);
 
-    const telegramApi = new TelegramApi(telegram).listen();
+    const telegramApi = new TelegramApi(telegram);
+    telegramApi.listen();
+
     await telegram.start();
 
-    const httpApi = new HttpApi(config.http, telegram, vkService).listen();
+    const httpApi = new HttpApi(config.http, telegram, vkService);
+
+    await httpApi.listen();
+    await telegramApi.probe();
   } catch (e) {
     logger.error(e.message);
   }

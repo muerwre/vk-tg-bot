@@ -10,9 +10,11 @@
     likes: ['😱','🤔','😃']
 ---
 {{!-- 
+
     use handlebars template here
     available variables are: text, user, group, type
-    (see PostNewHandler) 
+    (see PostNewHandler)
+     
 --}}
 {{#ifEq type 'suggest'}}
 Предложка:
