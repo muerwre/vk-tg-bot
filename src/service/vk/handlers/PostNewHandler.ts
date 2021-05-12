@@ -203,7 +203,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
 
     if (!postId || !label) return [];
 
-    return [{ text: label, url: `${postId}` }];
+    return [{ text: label, url: this.generateVkPostUrl(postId) }];
   };
 
   /**
@@ -387,4 +387,10 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
 
     return this.themeText(`${trimmed}${suffix}`, type, user);
   };
+
+  /**
+   * Generates urls for postId
+   */
+  generateVkPostUrl = (postId?: number) =>
+    `https://vk.com/wall-${this.group.id}_${postId}`;
 }

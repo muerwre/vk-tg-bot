@@ -1,6 +1,7 @@
 version: '3.4'
 services:
   db:
+    restart: always
     container_name: bot-${DRONE_BRANCH}__db
     image: postgres:11-alpine
     environment:
