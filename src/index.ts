@@ -10,7 +10,7 @@ async function main() {
   try {
     const config = prepareConfig();
 
-    const db = new PostgresDB(config.postgres);
+    const db = new PostgresDB(config.postgres, config.logger);
     await db.connect();
 
     const telegram = new TelegramService(config.telegram);

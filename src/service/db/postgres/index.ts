@@ -7,6 +7,7 @@ import path from "path";
 import { Like } from "./entities/Like";
 import { Event } from "./entities/Event";
 import { Post } from "./entities/Post";
+import { LoggerConfig } from "../../logger/types";
 
 const entities = [path.join(__dirname, "./entities/*")];
 
@@ -16,7 +17,10 @@ export class PostgresDB implements Storage {
   private likes!: Repository<Like>;
   private posts!: Repository<Post>;
 
-  constructor(private config: PostgresConfig) {}
+  constructor(
+    private config: PostgresConfig,
+    private loggerConfig: LoggerConfig
+  ) {}
 
   connect = async () => {
     logger.info(`connecting to ${this.config.uri}`);
@@ -25,7 +29,7 @@ export class PostgresDB implements Storage {
       type: "postgres",
       url: this.config.uri,
       entities,
-      logging: true,
+      logging: this.loggerConfig.level === "debug",
       synchronize: true,
     });
 
