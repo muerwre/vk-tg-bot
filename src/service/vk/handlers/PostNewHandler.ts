@@ -332,8 +332,11 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       markup
     );
 
+    const who = ctx.update?.callback_query?.from?.username || "someone";
+    const short = post.text.slice(0, 10);
+
     logger.info(
-      `someone reacted with ${emo} to message ${id} on channel ${channel}`
+      `${who} reacted with ${emo} to message "${short}..." on channel ${channel}`
     );
 
     next();
