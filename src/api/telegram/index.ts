@@ -23,18 +23,19 @@ export class TelegramApi {
    * Probes webhook url and falls back to polling mode on error
    */
   public probe = async () => {
-    if (!this.telegram.webhook.enabled || !this.telegram.webhook.url) {
+    if (!this.telegram.isWebhookEnabled) {
       return;
     }
 
     try {
-      await axios.get(this.telegram.webhook.url);
+      await axios.get(this.telegram.webhook.url!);
+
       logger.info(
-        `probing telegram webhook at ${this.telegram.webhook.url} succeeded`
+        `probing telegram webhook at ${this.telegram.webhook.url}: ok`
       );
     } catch (e) {
       logger.warn(
-        `probing telegram webhook at ${this.telegram.webhook.url} failed, falling back to polling mode`
+        `probing telegram webhook at ${this.telegram.webhook.url}: FAILED, falling back to polling mode`
       );
       await this.telegram.bot.launch();
     }
