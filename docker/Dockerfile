@@ -5,6 +5,8 @@ RUN rm -rf /app/*
 
 COPY ./package.json .
 COPY ./yarn.lock .
+COPY ./docker/wait-for-it.sh .
+
 RUN yarn
 COPY . .
 RUN yarn build
