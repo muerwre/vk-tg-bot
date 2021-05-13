@@ -119,7 +119,7 @@ export class VkService {
 
     handlers.forEach((channel) => {
       keys(channel).forEach((event) => {
-        console.log(` - ${group.name} listens for ${String(event)}`);
+        logger.info(` - ${group.name} listens for ${String(event)}`);
         updates.on(event as any, channel[event].execute);
       });
     });
