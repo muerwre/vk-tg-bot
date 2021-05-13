@@ -42,6 +42,7 @@ export class MessageNewHandler extends VkEventHandler<Fields, Values> {
 
     const extras: ExtraReplyMessage = {
       parse_mode: "Markdown",
+      disable_web_page_preview: true,
     };
 
     this.appendButtons(extras, user.id);

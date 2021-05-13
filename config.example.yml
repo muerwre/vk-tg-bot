@@ -17,6 +17,8 @@ vk:
 templates:
   message_new: templates/message_new.md
   wall_post_new: templates/post_new.md
+  group_join: templates/group_join.md
+  group_leave: templates/group_leave.md
 #  groups:
 #    - id: 0
 #      name: 'Group name'

@@ -101,7 +101,7 @@ export class TelegramService {
    * @param signal
    */
   public stop = (signal: string) => {
-    if (!this.isWebhookEnabled) {
+    if (this.isWebhookEnabled) {
       return;
     }
 

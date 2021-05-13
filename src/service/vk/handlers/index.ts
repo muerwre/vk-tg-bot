@@ -7,6 +7,7 @@ import { TelegramService } from "../../telegram";
 import { Template } from "../../template";
 import { PostNewHandler } from "./PostNewHandler";
 import { Storage } from "../../db";
+import { JoinLeaveHandler } from "./JoinLeaveHandler";
 
 interface Handler {
   new (
@@ -22,8 +23,8 @@ interface Handler {
 }
 
 export const vkEventToHandler: Record<VkEvent, Handler> = {
-  [VkEvent.GroupJoin]: StubHandler,
-  [VkEvent.GroupLeave]: StubHandler,
+  [VkEvent.GroupJoin]: JoinLeaveHandler,
+  [VkEvent.GroupLeave]: JoinLeaveHandler,
   [VkEvent.MessageNew]: MessageNewHandler,
   [VkEvent.WallPostNew]: PostNewHandler,
 };
