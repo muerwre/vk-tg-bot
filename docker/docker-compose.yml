@@ -23,7 +23,6 @@ services:
       - ${EXPOSE}:80
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - node_modules:/app/node_modules
     entrypoint: ./wait-for-it.sh -t 90 db:5432 -- node ./index.js
     depends_on:
       - db
@@ -34,4 +33,3 @@ services:
       start_period: 5m
 volumes:
   bot-db:
-  node_modules:
