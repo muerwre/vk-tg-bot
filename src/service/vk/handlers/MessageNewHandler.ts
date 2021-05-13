@@ -30,7 +30,7 @@ export class MessageNewHandler extends VkEventHandler<Fields, Values> {
 
     const user = await this.getUserByID(String(context.senderId));
 
-    logger.debug(
+    logger.info(
       `vk, group ${this.group.name} received message from ${user.first_name} ${user.last_name}: "${context.text}"`
     );
 

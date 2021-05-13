@@ -5,6 +5,7 @@ import { TelegramService } from "../../telegram";
 import { Template } from "../../template";
 import { Storage } from "../../db";
 import { Event } from "../../db/postgres/entities/Event";
+import logger from "../../logger";
 
 export class VkEventHandler<
   F extends Record<string, any> = any,
@@ -25,7 +26,7 @@ export class VkEventHandler<
     context: any,
     next: NextMiddleware
   ) => Promise<void> = async (ctx, next) => {
-    console.log(`vk received unknown event`, ctx);
+    logger.warn(`vk received unknown event`, ctx);
     await next();
   };
 
