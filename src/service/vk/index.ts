@@ -19,6 +19,9 @@ export class VkService {
   private readonly instances: Record<string, GroupInstance>;
   private readonly groups: Record<number, ConfigGroup>;
 
+  // Used to register all incoming events
+  private incomingEvents: string[] = [];
+
   constructor(
     private config: VkConfig,
     private telegram: TelegramService,
@@ -56,6 +59,9 @@ export class VkService {
       const { body } = req;
       const { groups } = this;
       const groupId = body?.group_id;
+      const group = this.groups[groupId];
+      const eventId = body?.event_id;
+      const type = body?.type;
 
       if (!groupId || !has(groupId, groups) || !has(groupId, this.instances)) {
         logger.warn(`vk received unknown call`, { body });
@@ -63,11 +69,26 @@ export class VkService {
         return;
       }
 
+      if (eventId) {
+        if (this.incomingEvents.includes(eventId)) {
+          logger.warn(
+            `received duplicate event "${type} (${eventId})" for group "${group.name} (skipping)"`
+          );
+          return res.send("OK");
+        }
+
+        this.incomingEvents.push(eventId);
+      }
+
       logger.debug(`received vk event`, { body });
 
       const inst = this.instances[groupId] as GroupInstance;
 
-      inst.updates.getWebhookCallback(this.config.endpoint)(req, res, next);
+      await inst.updates.getWebhookCallback(this.config.endpoint)(
+        req,
+        res,
+        next
+      );
     } catch (e) {
       next(e);
     }
