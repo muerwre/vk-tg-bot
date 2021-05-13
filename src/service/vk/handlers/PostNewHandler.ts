@@ -290,7 +290,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
     const event = await this.getEventByTgMessageId(id);
 
     if (!event) {
-      logger.warn(`event not found for tgMessageId ${id}`);
+      logger.debug(`event not found for tgMessageId ${id}`);
       await next();
       return;
     }
