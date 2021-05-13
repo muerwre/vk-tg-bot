@@ -11,7 +11,7 @@ const logger = createLogger({
     format.printf(
       ({ timestamp, level, message, ...rest }) =>
         `${timestamp} ${level}: ${message} ` +
-        (rest !== undefined && keys(rest).length ? JSON.stringify(rest) : "")
+        (rest !== undefined && keys(rest).length ? String(rest) : "")
     )
   ),
   level: config.logger?.level || "info",
