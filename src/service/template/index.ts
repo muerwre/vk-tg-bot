@@ -1,13 +1,13 @@
 import extract from "remark-extract-frontmatter";
 import frontmatter from "remark-frontmatter";
 import stringify from "remark-stringify";
-import textStringify from "retext-stringify";
 import parser from "remark-parse";
 import unified from "unified";
 import { parse } from "yaml";
 import toVFile from "to-vfile";
 import path from "path";
 import hb from "handlebars";
+import strip from "strip-markdown";
 
 const removeFrontmatter = () => (tree) => {
   tree.children = tree.children.filter((item) => item.type !== "yaml");
@@ -62,11 +62,12 @@ export class Template<
 
   public static cleanText(text: string) {
     const processor = unified()
-      .use(textStringify)
+      .use(stringify)
       .use(frontmatter)
       .use(extract, { yaml: parse })
       .use(removeFrontmatter)
-      .use(parser);
+      .use(parser)
+      .use(strip);
 
     return processor.processSync(text).contents.toString();
   }
