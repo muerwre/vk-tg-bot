@@ -133,6 +133,11 @@ export class PostgresDB implements Storage {
   };
 
   healthcheck = async () => {
-    await this.connection.query("SELECT 1");
+    try {
+      await this.connection.query("SELECT 1");
+    } catch (e) {
+      logger.warn("health check failed at db", e);
+      throw e;
+    }
   };
 }

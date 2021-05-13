@@ -116,6 +116,11 @@ export class TelegramService {
    * Performs healthcheck for telegram
    */
   public healthcheck = async () => {
-    await this.bot.telegram.getMe();
+    try {
+      await this.bot.telegram.getMe();
+    } catch (e) {
+      logger.warn("health check failed at telegram", e);
+      throw e;
+    }
   };
 }
