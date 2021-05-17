@@ -41,7 +41,7 @@ steps:
       port:
         from_secret: rsync_port
       source: ./
-      target: /tmp/tg-bot/${DRONE_BRANCH}
+      target: /tmp/tg-bot-${DRONE_BRANCH}
       include:
         - "docker/docker-compose.yml"
       exclude:
