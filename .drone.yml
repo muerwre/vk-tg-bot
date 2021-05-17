@@ -40,12 +40,12 @@ steps:
         from_secret: rsync_key
       port:
         from_secret: rsync_port
-      source: ./docker
+      source: ./docker/
       target: /tmp/tg-bot-${DRONE_BRANCH}
       include:
         - "docker-compose.yml"
-      exclude:
-        - "*"
+#      exclude:
+#        - "*"
   - name: deploy
     image: appleboy/drone-ssh
     when:
