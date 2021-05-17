@@ -23,7 +23,8 @@ services:
       - ${EXPOSE}:80
     volumes:
       - /etc/localtime:/etc/localtime:ro
-    entrypoint: ./wait-for-it.sh -t 90 db:5432 -- node ./index.js
+      - ${CONFIG_PATH}:/etc/bot/config.yml:ro
+    entrypoint: ./wait-for-it.sh -t 90 db:5432 -- node --config /etc/bot/config.yml ./index.js
     depends_on:
       - db
     healthcheck:
