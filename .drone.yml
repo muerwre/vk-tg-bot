@@ -41,7 +41,7 @@ steps:
       port:
         from_secret: rsync_port
       source: ./
-      target: ${BUILD_PATH}/${DRONE_BRANCH}
+      target: $${BUILD_PATH}/${DRONE_BRANCH}
       include:
         - "docker/docker-compose.yml"
       exclude:
