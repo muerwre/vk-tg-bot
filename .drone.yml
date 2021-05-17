@@ -45,6 +45,9 @@ steps:
       include:
         - "docker/docker-compose.yml"
       prescript:
+        - echo $${BUILD_PATH}
+        - echo ${BUILD_PATH}
+        - echo ${build_path}
         - rm -rf $${BUILD_PATH}/${DRONE_BRANCH}
         - mkdir -p $${BUILD_PATH}/${DRONE_BRANCH}
       exclude:
