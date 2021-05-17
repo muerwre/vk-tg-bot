@@ -7,21 +7,22 @@ platform:
   arch: amd64
 
 steps:
-#  - name: build
-#    image: plugins/docker
-#    when:
-#      branch:
-#        - develop
-#    settings:
-#      dockerfile: docker/Dockerfile
-#      username:
-#        from_secret: docker_login
-#      password:
-#        from_secret: docker_password
-#      repo:
-#        from_secret: docker_repo
-#      registry:
-#        from_secret: docker_registry
+  - name: build
+    image: plugins/docker
+    when:
+      branch:
+        - develop
+    settings:
+      dockerfile: docker/Dockerfile
+      tag: ${DRONE_BRANCH}
+      username:
+        from_secret: docker_login
+      password:
+        from_secret: docker_password
+      repo:
+        from_secret: docker_repo
+      registry:
+        from_secret: docker_registry
   - name: upload
     image: drillster/drone-rsync
     when:
