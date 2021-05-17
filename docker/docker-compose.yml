@@ -16,9 +16,7 @@ services:
     restart: always
     environment:
       PORT: 80
-    build:
-      context: ../
-      dockerfile: ./docker/Dockerfile
+    image: ${DOCKER_REGISTRY}/${DOCKER_REPO}:${DRONE_BRANCH}
     ports:
       - ${EXPOSE}:80
     volumes:
