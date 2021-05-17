@@ -45,11 +45,12 @@ steps:
       include:
         - "docker/docker-compose.yml"
       script:
-        - echo $${BUILD_PATH}
-        - echo ${BUILD_PATH}
-        - echo ${build_path}
-        - rm -rf $${BUILD_PATH}/${DRONE_BRANCH}
-        - mkdir -p $${BUILD_PATH}/${DRONE_BRANCH}
+        - echo "A $${BUILD_PATH}"
+        - echo "B ${BUILD_PATH}"
+        - echo "C ${build_path}"
+        - echo "D $${build_path}"
+#        - rm -rf $${BUILD_PATH}/${DRONE_BRANCH}
+#        - mkdir -p $${BUILD_PATH}/${DRONE_BRANCH}
       exclude:
         - "*"
   - name: deploy
