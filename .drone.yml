@@ -44,13 +44,6 @@ steps:
       target: $${BUILD_PATH}/${DRONE_BRANCH}
       include:
         - "docker/docker-compose.yml"
-      script:
-        - echo "A $${BUILD_PATH}"
-        - echo "B ${BUILD_PATH}"
-        - echo "C ${build_path}"
-        - echo "D $${build_path}"
-#        - rm -rf ${BUILD_PATH}/${DRONE_BRANCH}
-#        - mkdir -p ${BUILD_PATH}/${DRONE_BRANCH}
       exclude:
         - "*"
   - name: deploy
