@@ -41,7 +41,7 @@ steps:
       port:
         from_secret: rsync_port
       source: ./
-      target: ${build_path}/${DRONE_BRANCH}
+      target: /tmp/${DRONE_BRANCH}
       include:
         - "docker/docker-compose.yml"
       script:
