@@ -44,7 +44,7 @@ steps:
       target: ${BUILD_PATH}/${DRONE_BRANCH}
       include:
         - "docker/docker-compose.yml"
-      prescript:
+      script:
         - echo $${BUILD_PATH}
         - echo ${BUILD_PATH}
         - echo ${build_path}
