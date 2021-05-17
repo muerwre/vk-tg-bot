@@ -38,7 +38,9 @@ steps:
         from_secret: rsync_key
       port:
         from_secret: rsync_port
-      hosts: [${rsync_host}]
+      secrets:
+        - source: rsync_host
+          target: plugin_hosts
       source: ./
       target: ${BUILD_PATH}/${DRONE_BRANCH}
       include:
