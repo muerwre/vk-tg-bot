@@ -16,7 +16,7 @@ services:
     restart: always
     environment:
       PORT: 80
-    image: ${DOCKER_REGISTRY}/${DOCKER_REPO}:${DRONE_BRANCH}
+    image: ${DOCKER_REPO}:${DRONE_BRANCH}
     ports:
       - ${EXPOSE}:80
     volumes:

@@ -14,7 +14,8 @@ steps:
         - develop
     settings:
       dockerfile: docker/Dockerfile
-      tag: ${DRONE_BRANCH}
+      tag:
+        - ${DRONE_BRANCH}
       username:
         from_secret: docker_login
       password:
@@ -73,5 +74,5 @@ steps:
       envs: [build_path, env_path, docker_registry, docker_repo]
       script_stop: true
       script:
-        - DRONE_BRANCH=${DRONE_BRANCH} CONFIG_PATH=$${ENV_PATH}/${DRONE_BRANCH}/config.yml DOCKER_REGISTRY=$${DOCKER_REGISTRY} DOCKER_REPO=$${DOCKER_REPO} docker-compose -f $${BUILD_PATH}/${DRONE_BRANCH}/docker-compose.yml --env-file $${ENV_PATH}/${DRONE_BRANCH}/.env build
-        - DRONE_BRANCH=${DRONE_BRANCH} CONFIG_PATH=$${ENV_PATH}/${DRONE_BRANCH}/config.yml DOCKER_REGISTRY=$${DOCKER_REGISTRY} DOCKER_REPO=$${DOCKER_REPO} docker-compose -f $${BUILD_PATH}/${DRONE_BRANCH}/docker-compose.yml --env-file $${ENV_PATH}/${DRONE_BRANCH}/.env up -d
+        - DRONE_BRANCH=${DRONE_BRANCH} CONFIG_PATH=$${ENV_PATH}/${DRONE_BRANCH}/config.yml DOCKER_REPO=$${DOCKER_REPO} docker-compose -f $${BUILD_PATH}/${DRONE_BRANCH}/docker-compose.yml --env-file $${ENV_PATH}/${DRONE_BRANCH}/.env build
+        - DRONE_BRANCH=${DRONE_BRANCH} CONFIG_PATH=$${ENV_PATH}/${DRONE_BRANCH}/config.yml DOCKER_REPO=$${DOCKER_REPO} docker-compose -f $${BUILD_PATH}/${DRONE_BRANCH}/docker-compose.yml --env-file $${ENV_PATH}/${DRONE_BRANCH}/.env up -d
