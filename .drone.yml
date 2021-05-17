@@ -31,6 +31,8 @@ steps:
       BUILD_PATH:
         from_secret: build_path
       PLUGIN_ARGS: -zz -O --no-perms
+      PLUGIN_HOSTS:
+        from_secret: rsync_host
     settings:
       user:
         from_secret: rsync_user
@@ -38,15 +40,11 @@ steps:
         from_secret: rsync_key
       port:
         from_secret: rsync_port
-      secrets:
-        - source: rsync_host
-          target: plugin_hosts
       source: ./
       target: ${BUILD_PATH}/${DRONE_BRANCH}
       include:
         - "docker/docker-compose.yml"
       prescript:
-        - echo ${RSYNC_HOST}
         - rm -rf $${BUILD_PATH}/${DRONE_BRANCH}
         - mkdir -p $${BUILD_PATH}/${DRONE_BRANCH}
       exclude:
