@@ -41,7 +41,7 @@ steps:
       port:
         from_secret: rsync_port
       source: ./docker/
-      target: /tmp/tg-bot-${DRONE_BRANCH}
+      target: ${BUILD_PATH}/${DRONE_BRANCH}
       include:
         - "docker-compose.yml"
 #      exclude:
@@ -68,5 +68,5 @@ steps:
       envs: [build_path, env_path]
       script_stop: true
       script:
-        - DRONE_BRANCH=${DRONE_BRANCH} CONFIG_PATH="${env_path}/${DRONE_BRANCH}/config.yml" docker-compose -f /tmp/tg-bot/${DRONE_BRANCH}/docker/docker-compose.yml --env-file ${env_path}/${DRONE_BRANCH}/.env build
-        - DRONE_BRANCH=${DRONE_BRANCH} CONFIG_PATH="${env_path}/${DRONE_BRANCH}/config.yml" docker-compose -f /tmp/tg-bot/${DRONE_BRANCH}/docker/docker-compose.yml --env-file ${env_path}/${DRONE_BRANCH}/.env up -d
+        - DRONE_BRANCH=${DRONE_BRANCH} CONFIG_PATH="${env_path}/${DRONE_BRANCH}/config.yml" docker-compose -f ${build_path}/${DRONE_BRANCH}/docker-compose.yml --env-file ${env_path}/${DRONE_BRANCH}/.env build
+        - DRONE_BRANCH=${DRONE_BRANCH} CONFIG_PATH="${env_path}/${DRONE_BRANCH}/config.yml" docker-compose -f ${build_path}/${DRONE_BRANCH}/docker-compose.yml --env-file ${env_path}/${DRONE_BRANCH}/.env up -d
