@@ -47,6 +47,8 @@ steps:
       include:
         - "docker-compose.yml"
         - "wait-for-it.sh"
+      exclude:
+        - "Dockerfile"
   - name: deploy
     image: appleboy/drone-ssh
     when:
