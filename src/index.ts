@@ -28,7 +28,7 @@ async function main() {
 
     logger.info("bot successfully started");
   } catch (e) {
-    logger.error(e.message);
+    logger.error(`FATAL EXCEPTION ${e.message}`);
   }
 }
 

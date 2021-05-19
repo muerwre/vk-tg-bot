@@ -49,8 +49,7 @@ export class TelegramService {
           }
 
           logger.info(`telegram started webhook at ${this.webhook.url}`);
-        })
-        .catch(logger.warn);
+        });
     } else {
       await this.bot.telegram.deleteWebhook().then(
         () => this.bot.launch(),
