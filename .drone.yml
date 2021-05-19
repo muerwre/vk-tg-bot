@@ -46,8 +46,8 @@ steps:
       target: $${BUILD_PATH}/${DRONE_BRANCH}
       include:
         - "docker-compose.yml"
-#      exclude:
-#        - "*"
+      exclude:
+        - "Dockerfile"
   - name: deploy
     image: appleboy/drone-ssh
     when:
