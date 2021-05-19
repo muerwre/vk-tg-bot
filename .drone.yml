@@ -75,5 +75,11 @@ steps:
       script_stop: true
       script:
         - cat $${ENV_PATH}/${DRONE_BRANCH}/.env > $${BUILD_PATH}/${DRONE_BRANCH}/.env
-        - echo -en "\nDRONE_BRANCH=${DRONE_BRANCH}\nCONFIG_PATH=$${ENV_PATH}/${DRONE_BRANCH}/config.yml\nDOCKER_REPO=$${DOCKER_REPO}\n" >> $${BUILD_PATH}/${DRONE_BRANCH}/.env
-        - docker-compose -f $${BUILD_PATH}/${DRONE_BRANCH}/docker-compose.yml --env-file $${BUILD_PATH}/${DRONE_BRANCH}/.env up -d --build
+        - |
+          echo -en "\nDRONE_BRANCH=${DRONE_BRANCH}\nCONFIG_PATH=$${ENV_PATH}/${DRONE_BRANCH}/config.yml\nDOCKER_REPO=$${DOCKER_REPO}\n"\
+            >> $${BUILD_PATH}/${DRONE_BRANCH}/.env
+        - |
+          docker-compose \
+            -f $${BUILD_PATH}/${DRONE_BRANCH}/docker-compose.yml \
+            --env-file $${BUILD_PATH}/${DRONE_BRANCH}/.env \
+            up -d --build
