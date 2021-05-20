@@ -32,6 +32,8 @@ interface Fields {
   link_text?: string;
   links: Record<UrlPrefix, string>;
   likes?: string[];
+  char_limit?: number;
+  images_limit?: number;
 }
 
 interface Values {
@@ -44,6 +46,7 @@ interface Values {
 type LikeCtx = Composer.Context<CallbackQueryUpdate> & { match: string[] };
 
 const PHOTO_CAPTION_LIMIT = 1000;
+const POST_TEXT_LIMIT = 4096;
 
 export class PostNewHandler extends VkEventHandler<Fields, Values> {
   constructor(...props: any) {
@@ -52,7 +55,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
     this.onInit();
   }
 
-  private likes: string[] = ["👎", "👍"];
+  private likes?: string[];
 
   public execute = async (context: WallPostContext, next: NextMiddleware) => {
     const id = context?.wall?.id;
@@ -110,14 +113,14 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       const thumb = await images.find((img) => img.mediumSizeUrl);
       msg = await this.telegram.sendPhotoToChan(
         this.channel.id,
-        this.trimTextForPhoto(text, postType, user),
+        this.trimTextForPhoto(text, PHOTO_CAPTION_LIMIT, postType, user),
         thumb?.mediumSizeUrl!,
         extras
       );
     } else {
       msg = await this.telegram.sendMessageToChan(
         this.channel.id,
-        parsed,
+        this.trimTextForPhoto(text, POST_TEXT_LIMIT, postType, user),
         extras
       );
     }
@@ -225,6 +228,8 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
    * Generates like button
    */
   private generateLikes: ExtraGenerator = async (text, eventId) => {
+    if (!this.likes) return [];
+
     if (eventId) {
       const event = await this.getEventById(eventId);
       if (!event) {
@@ -300,7 +305,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       !emo ||
       !id ||
       channel != this.channel.id ||
-      !this.likes.includes(emo)
+      !this.likes?.includes(emo)
     ) {
       await next();
       return;
@@ -387,21 +392,22 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
    */
   private trimTextForPhoto = (
     text: string,
+    maxChars: number,
     type?: string,
     user?: UsersUserFull
   ): string => {
     const withText = this.themeText(text, type, user);
+    const limit = this.template.fields.char_limit
+      ? Math.min(this.template.fields.char_limit, maxChars)
+      : maxChars;
 
-    if (withText.length < PHOTO_CAPTION_LIMIT) {
+    if (withText.length < limit) {
       return withText;
     }
 
     const withoutText = this.themeText("", type, user);
     const suffix = "...";
-    const trimmed = text.slice(
-      0,
-      PHOTO_CAPTION_LIMIT - withoutText.length - suffix.length
-    );
+    const trimmed = text.slice(0, limit - withoutText.length - suffix.length);
 
     return this.themeText(`${trimmed}${suffix}`, type, user);
   };

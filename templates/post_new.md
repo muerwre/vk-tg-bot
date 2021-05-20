@@ -8,6 +8,8 @@
         https://vk.com/album-: Альбом поката
         http://vk.com/album-: Альбом поката
     likes: ['😱','🤔','😃']
+    char_limit: 0
+    images_limit: 2
 ---
 {{!-- 
 
