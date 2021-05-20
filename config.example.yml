@@ -14,7 +14,7 @@ vk:
   # Default path for POST requests from VK api
   endpoint: /
   groups: []
-templates:
+templates: # (required)
   message_new: templates/message_new.md
   wall_post_new: templates/post_new.md
   group_join: templates/group_join.md
@@ -26,6 +26,8 @@ templates:
 #      secretKey: 'groupSecretKey'
 #      apiKey: 'callbackApiKey'
 #      post_types: ['post','copy','reply','postpone','suggest']
+#      templates: # group's custom templates (optional)
+#        message_new: templates/custom/message_new.md
 #      channels:
 #        - id: '@pogonia_test_chan'
 #          events:
@@ -34,4 +36,5 @@ templates:
 #            - group_join
 #            - group_leave
 #            - message_new
-
+#          templates: # channel custom templates (optional)
+#            wall_post_new: templates/custom/post_new.md

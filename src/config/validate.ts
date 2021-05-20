@@ -6,8 +6,18 @@ import { telegramConfigSchema } from "../service/telegram/validation";
 import { loggerConfigSchema } from "../service/logger/config";
 import { dbConfigValidatior } from "../service/db/postgres/validation";
 
-const templateConfigSchema = object().shape({
+export const templateConfigSchema = object().required().shape({
   message_new: string().required(),
+  wall_post_new: string().required(),
+  group_join: string().required(),
+  group_leave: string().required(),
+});
+
+export const templateOptionalSchema = object().shape({
+  message_new: string(),
+  wall_post_new: string(),
+  group_join: string(),
+  group_leave: string(),
 });
 
 const configSchema = object<Config>().required().shape({

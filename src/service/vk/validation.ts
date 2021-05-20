@@ -1,5 +1,6 @@
 import * as yup from "yup";
 import { VkConfig, VkEvent } from "./types";
+import { templateOptionalSchema } from "../../config/validate";
 
 const vkChannelEventSchema = yup.string().oneOf(Object.values(VkEvent));
 
@@ -12,6 +13,7 @@ const vkChannelSchema = yup
       .required()
       .matches(/^@/, ({ path }) => `${path} should start with "@"`),
     events: yup.array().of(vkChannelEventSchema),
+    templates: templateOptionalSchema,
   });
 
 export const vkConfigSchema = yup
@@ -30,6 +32,7 @@ export const vkConfigSchema = yup
           secretKey: yup.string().required(),
           apiKey: yup.string().required(),
           channels: yup.array().of(vkChannelSchema),
+          templates: templateOptionalSchema,
         })
       ),
   });

@@ -2,7 +2,7 @@ import { ConfigGroup, GroupInstance, VkConfig, VkEvent } from "./types";
 import { API, Updates, Upload } from "vk-io";
 import logger from "../logger";
 import { Request, Response } from "express";
-import { flatten, has, keys } from "ramda";
+import { flatten, has, keys, prop } from "ramda";
 import { NextFunction } from "connect";
 import { VkEventHandler } from "./handlers/VkEventHandler";
 import { vkEventToHandler } from "./handlers";
@@ -137,7 +137,11 @@ export class VkService {
     return flatten(
       group.channels.map((chan) =>
         chan.events.reduce((acc, event) => {
-          const template = new Template(this.templates[event]);
+          const template = new Template(
+            prop(event, chan?.templates) ||
+              prop(event, group?.templates) ||
+              prop(event, this.templates)
+          );
 
           const handler = new vkEventToHandler[event](
             event,
