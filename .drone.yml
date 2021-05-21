@@ -11,6 +11,7 @@ steps:
     image: plugins/docker
     when:
       branch:
+        - master
         - develop
     settings:
       dockerfile: docker/Dockerfile
@@ -28,6 +29,7 @@ steps:
     image: drillster/drone-rsync
     when:
       branch:
+        - master
         - develop
     environment:
       BUILD_PATH:
@@ -53,6 +55,7 @@ steps:
     image: appleboy/drone-ssh
     when:
       branch:
+        - master
         - develop
     environment:
       BUILD_PATH:
