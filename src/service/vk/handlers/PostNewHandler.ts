@@ -17,6 +17,8 @@ import logger from "../../logger";
 import Composer from "telegraf";
 import CallbackQueryUpdate = Update.CallbackQueryUpdate;
 import { Template } from "../../template";
+import { getAttachment } from "../../../utils/attachment";
+import PhotoMessage = Message.PhotoMessage;
 
 type Button = "links" | "likes" | "more";
 type UrlPrefix = string;
@@ -93,30 +95,38 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
 
     const text = context.wall?.text?.trim() || "";
 
-    const parsed = this.themeText(text, postType, user);
-
     const extras: ExtraReplyMessage = {
       disable_web_page_preview: true,
-      parse_mode: "Markdown",
       reply_markup: await this.createKeyboard(text, undefined, context.wall.id),
     };
 
-    let msg: Message;
+    let msg: Message | PhotoMessage;
 
     const images = context.wall.getAttachments("photo");
+    const thumbs = images
+      .map(getAttachment)
+      .filter((el) => el)
+      .slice(0, this.template.fields.images_limit) as string[];
+
     const hasThumb =
-      this.template.fields.image &&
-      images.length &&
-      images.some((img) => img.mediumSizeUrl);
+      this.template.fields.image && this.template.fields.images_limit;
 
     if (hasThumb) {
-      const thumb = await images.find((img) => img.mediumSizeUrl);
-      msg = await this.telegram.sendPhotoToChan(
-        this.channel.id,
-        this.trimTextForPhoto(text, PHOTO_CAPTION_LIMIT, postType, user),
-        thumb?.mediumSizeUrl!,
-        extras
-      );
+      if (this.template.fields.images_limit! <= 1) {
+        msg = await this.telegram.sendPhotoToChan(
+          this.channel.id,
+          this.trimTextForPhoto(text, PHOTO_CAPTION_LIMIT, postType, user),
+          thumbs[0]!,
+          extras
+        );
+      } else {
+        msg = (await this.telegram.sendPhotoGroupToChan(
+          this.channel.id,
+          this.trimTextForPhoto(text, PHOTO_CAPTION_LIMIT, postType, user),
+          thumbs,
+          extras
+        )) as any;
+      }
     } else {
       msg = await this.telegram.sendMessageToChan(
         this.channel.id,
@@ -409,7 +419,9 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
     const suffix = "...";
     const trimmed = text.slice(0, limit - withoutText.length - suffix.length);
 
-    return this.themeText(`${trimmed}${suffix}`, type, user);
+    const txt = this.themeText(`${trimmed}${suffix}`, type, user);
+
+    return txt;
   };
 
   /**

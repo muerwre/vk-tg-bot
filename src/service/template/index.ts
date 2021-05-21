@@ -31,7 +31,8 @@ export class Template<
         .use(frontmatter)
         .use(extract, { yaml: parse })
         .use(removeFrontmatter)
-        .use(parser);
+        .use(parser)
+        .use(strip);
 
       const file = toVFile.readSync(path.join(__dirname, "../../", filename));
       const result = processor.processSync(file);
@@ -47,7 +48,7 @@ export class Template<
    * Themes the template with values
    */
   public theme = (values: V) => {
-    return hb.compile(this.template)(values);
+    return hb.compile(this.template)(values).replace(/\n/g, "\n\n");
   };
 
   /**

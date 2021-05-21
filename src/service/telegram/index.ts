@@ -2,7 +2,7 @@ import { TelegramConfig, WebhookConfig } from "./types";
 import { Telegraf } from "telegraf";
 import logger from "../logger";
 import { Response } from "express";
-import { Update } from "typegram";
+import { InputMediaPhoto, Update } from "typegram";
 import loggerTgMiddleware from "../logger/tg";
 import { ExtraReplyMessage } from "telegraf/typings/telegram-types";
 
@@ -80,7 +80,7 @@ export class TelegramService {
   };
 
   /**
-   * Sends simple message to channel
+   * Sends message with photo to channel
    */
   public sendPhotoToChan = async (
     channel: string,
@@ -92,6 +92,27 @@ export class TelegramService {
     return await this.bot.telegram.sendPhoto(channel, src, {
       ...extra,
       caption,
+    });
+  };
+
+  /**
+   * Sends simple message to channel
+   */
+  public sendPhotoGroupToChan = async (
+    channel: string,
+    caption: string,
+    src: string[],
+    extra?: ExtraReplyMessage
+  ) => {
+    logger.debug(`sending photo message "${caption}" to chan "${channel}"`);
+    const group: InputMediaPhoto[] = src.map((media, i) => ({
+      type: "photo",
+      media,
+      caption: i === 0 ? caption : undefined,
+    }));
+
+    return await this.bot.telegram.sendMediaGroup(channel, group, {
+      ...extra,
     });
   };
 

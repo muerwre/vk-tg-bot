@@ -9,7 +9,7 @@
         http://vk.com/album-: Альбом поката
     likes: ['😱','🤔','😃']
     char_limit: 0
-    images_limit: 2
+    images_limit: 1
 ---
 {{!-- 
 
@@ -18,12 +18,6 @@
     (see PostNewHandler)
      
 --}}
-{{#ifEq type 'suggest'}}
-Предложка:
-
-{{/ifEq}}
+{{#ifEq type 'suggest'}}Предложка:{{/ifEq}}
 {{text}}
-
-{{#if user}}
-[{{user.first_name}} {{user.last_name}}](https://vk.com/id{{user.id}})
-{{/if}}
+{{#if user}}[{{user.first_name}} {{user.last_name}}](https://vk.com/id{{user.id}}){{/if}}
