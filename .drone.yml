@@ -16,6 +16,7 @@ steps:
       dockerfile: docker/Dockerfile
       tag:
         - ${DRONE_BRANCH}
+        - latest
       username:
         from_secret: docker_login
       password:
