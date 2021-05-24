@@ -5,9 +5,9 @@ RUN rm -rf /app/*
 
 COPY ./package.json .
 COPY ./yarn.lock .
+RUN yarn
 
 COPY . .
-RUN yarn
 RUN yarn build
 
 WORKDIR /app/dist
