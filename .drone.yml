@@ -84,10 +84,5 @@ steps:
           docker-compose \
             -f $${BUILD_PATH}/${DRONE_BRANCH}/docker-compose.yml \
             --env-file $${BUILD_PATH}/${DRONE_BRANCH}/.env \
-            pull
-        - |
-          docker-compose \
-            -f $${BUILD_PATH}/${DRONE_BRANCH}/docker-compose.yml \
-            --env-file $${BUILD_PATH}/${DRONE_BRANCH}/.env \
             -d --build \
             up
