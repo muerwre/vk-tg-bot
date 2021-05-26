@@ -48,7 +48,7 @@ export class Template<
    * Themes the template with values
    */
   public theme = (values: V) => {
-    return hb.compile(this.template)(values).replace(/\n+/g, "\n\n");
+    return hb.compile(this.template)(values).replace(/\n+/gim, "\n\n");
   };
 
   /**

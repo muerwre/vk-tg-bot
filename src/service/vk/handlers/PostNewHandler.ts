@@ -109,7 +109,9 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       .slice(0, this.template.fields.images_limit) as string[];
 
     const hasThumb =
-      this.template.fields.image && this.template.fields.images_limit;
+      !!this.template.fields.image &&
+      !!this.template.fields.images_limit &&
+      thumbs.length > 0;
 
     if (hasThumb) {
       if (this.template.fields.images_limit! <= 1) {
