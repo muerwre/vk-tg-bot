@@ -1,7 +1,6 @@
 FROM node:lts-fermium
 
 WORKDIR /app
-#RUN rm -rf /app/*
 
 COPY ./package.json .
 COPY ./yarn.lock .

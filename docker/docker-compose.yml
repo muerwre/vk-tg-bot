@@ -23,6 +23,7 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - ${CONFIG_PATH}:/etc/bot/config.yml:ro
+      - ${CONFIG_PATH}:/app/dist/common:ro
     entrypoint: ./wait-for-it.sh -t 90 db:5432 -- node ./index.js --config /etc/bot/config.yml
     depends_on:
       - db
