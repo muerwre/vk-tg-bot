@@ -34,20 +34,27 @@ export class MessageNewHandler extends VkEventHandler<Fields, Values> {
       `vk, group ${this.group.name} received message from ${user.first_name} ${user.last_name}: "${context.text}"`
     );
 
-    const parsed = this.template.theme({
-      user,
-      group: this.group,
-      text: context?.text || "",
-    });
+    const parsed = this.template.theme(
+      {
+        user,
+        group: this.group,
+        text: context?.text || "",
+      },
+      !!this.channel.markdown
+    );
 
     const extras: ExtraReplyMessage = {
-      parse_mode: "Markdown",
       disable_web_page_preview: true,
     };
 
     this.appendButtons(extras, user.id);
 
-    await this.telegram.sendMessageToChan(this.channel.id, parsed, extras);
+    await this.telegram.sendMessageToChan(
+      this.channel.id,
+      parsed,
+      !!this.channel.markdown,
+      extras
+    );
 
     await next();
   };

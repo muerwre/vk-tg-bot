@@ -22,6 +22,7 @@ export interface GroupChannel {
   events: VkEvent[];
   post_types: WallPostType[];
   templates: Partial<TemplateConfig>;
+  markdown?: boolean;
 }
 
 export enum VkEvent {

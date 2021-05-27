@@ -8,6 +8,7 @@ import toVFile from "to-vfile";
 import path from "path";
 import hb from "handlebars";
 import strip from "strip-markdown";
+import { VFileCompatible } from "vfile";
 
 const removeFrontmatter = () => (tree) => {
   tree.children = tree.children.filter((item) => item.type !== "yaml");
@@ -20,25 +21,26 @@ export class Template<
   public fields: F = {} as F;
   public template: string = "";
 
+  private readonly file: VFileCompatible = "";
+
   constructor(filename: string) {
     try {
       if (!filename) {
         return;
       }
 
+      // read file and fields from it to this.fields
+
       const processor = unified()
         .use(stringify)
         .use(frontmatter)
         .use(extract, { yaml: parse })
         .use(removeFrontmatter)
-        .use(parser)
-        .use(strip);
+        .use(parser);
 
-      const file = toVFile.readSync(path.join(__dirname, "../../", filename));
-      const result = processor.processSync(file);
-
+      this.file = toVFile.readSync(path.join(__dirname, "../../", filename));
+      const result = processor.processSync(this.file);
       this.fields = result.data as F;
-      this.template = result.contents.toString().trim();
     } catch (e) {
       throw new Error(`Template: ${e.toString()}`);
     }
@@ -47,8 +49,23 @@ export class Template<
   /**
    * Themes the template with values
    */
-  public theme = (values: V) => {
-    return hb.compile(this.template)(values).replace(/\n+/g, "\n\n");
+  public theme = (values: V, markdown?: boolean) => {
+    const processor = unified()
+      .use(stringify)
+      .use(frontmatter)
+      .use(removeFrontmatter)
+      .use(parser);
+
+    if (!markdown) {
+      processor.use(strip);
+    }
+
+    const result = processor.processSync(this.file);
+    const template = result.contents.toString().trim();
+
+    return hb
+      .compile(template)(values)
+      .replace(/\n{2,}/g, "\n\n");
   };
 
   /**
@@ -62,15 +79,12 @@ export class Template<
   }
 
   public static cleanText(text: string) {
-    const processor = unified()
+    return unified()
       .use(stringify)
-      .use(frontmatter)
-      .use(extract, { yaml: parse })
-      .use(removeFrontmatter)
       .use(parser)
-      .use(strip);
-
-    return processor.processSync(text).contents.toString();
+      .use(strip)
+      .processSync(text)
+      .contents.toString();
   }
 }
 

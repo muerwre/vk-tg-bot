@@ -29,20 +29,27 @@ export class JoinLeaveHandler extends VkEventHandler<Fields, Values> {
       `vk, group ${this.group.name}: ${user.first_name} ${user.last_name} ${dir} the group`
     );
 
-    const parsed = this.template.theme({
-      user,
-      group: this.group,
-      isJoined: context.isJoin,
-      isLeave: context.isLeave,
-      count,
-    });
+    const parsed = this.template.theme(
+      {
+        user,
+        group: this.group,
+        isJoined: context.isJoin,
+        isLeave: context.isLeave,
+        count,
+      },
+      !!this.channel.markdown
+    );
 
     const extras: ExtraReplyMessage = {
-      parse_mode: "Markdown",
       disable_web_page_preview: true,
     };
 
-    await this.telegram.sendMessageToChan(this.channel.id, parsed, extras);
+    await this.telegram.sendMessageToChan(
+      this.channel.id,
+      parsed,
+      !!this.channel.markdown,
+      extras
+    );
 
     await next();
   };

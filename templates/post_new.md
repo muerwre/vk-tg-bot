@@ -19,5 +19,7 @@
      
 --}}
 {{#ifEq type 'suggest'}}Предложка:{{/ifEq}}
-{{text}}
-{{#if user}}[{{user.first_name}} {{user.last_name}}](https://vk.com/id{{user.id}}){{/if}}
+
+{{{text}}}
+{{#if user}}
+— [{{user.first_name}} {{user.last_name}}](https://vk.com/id{{user.id}}){{/if}}

@@ -14,6 +14,7 @@ const vkChannelSchema = yup
       .matches(/^@/, ({ path }) => `${path} should start with "@"`),
     events: yup.array().of(vkChannelEventSchema),
     templates: templateOptionalSchema,
+    markdown: yup.boolean().optional(),
   });
 
 export const vkConfigSchema = yup

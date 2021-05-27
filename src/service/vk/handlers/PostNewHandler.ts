@@ -100,33 +100,20 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       reply_markup: await this.createKeyboard(text, undefined, context.wall.id),
     };
 
-    let msg: Message | PhotoMessage;
-
     const images = context.wall.getAttachments("photo");
     const thumbs = images
       .map(getAttachment)
       .filter((el) => el)
       .slice(0, this.template.fields.images_limit) as string[];
 
-    const hasThumb =
-      !!this.template.fields.image &&
-      !!this.template.fields.images_limit &&
-      thumbs.length > 0;
-
-    if (hasThumb) {
-      msg = await this.telegram.sendPhotoToChan(
-        this.channel.id,
-        this.trimTextForPhoto(text, PHOTO_CAPTION_LIMIT, postType, user),
-        thumbs[0]!,
-        extras
-      );
-    } else {
-      msg = await this.telegram.sendMessageToChan(
-        this.channel.id,
-        this.trimTextForPhoto(text, POST_TEXT_LIMIT, postType, user),
-        extras
-      );
-    }
+    const msg = await this.sendMessage(
+      text,
+      thumbs,
+      extras,
+      postType,
+      user,
+      this.channel.markdown
+    );
 
     const event = await this.createEvent(
       id,
@@ -380,14 +367,18 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
   private themeText = (
     text: string,
     type?: string,
-    user?: UsersUserFull
+    user?: UsersUserFull,
+    markdown?: boolean
   ): string => {
-    return this.template.theme({
-      user,
-      group: this.group,
-      type,
-      text: Template.cleanText(text),
-    });
+    return this.template.theme(
+      {
+        user,
+        group: this.group,
+        type,
+        text: Template.cleanText(text),
+      },
+      markdown
+    );
   };
 
   /**
@@ -397,9 +388,10 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
     text: string,
     maxChars: number,
     type?: string,
-    user?: UsersUserFull
+    user?: UsersUserFull,
+    markdown?: boolean
   ): string => {
-    const withText = this.themeText(text, type, user);
+    const withText = this.themeText(text, type, user, markdown);
     const limit = this.template.fields.char_limit
       ? Math.min(this.template.fields.char_limit, maxChars)
       : maxChars;
@@ -408,13 +400,11 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       return withText;
     }
 
-    const withoutText = this.themeText("", type, user);
+    const withoutText = this.themeText("", type, user, markdown);
     const suffix = "...";
     const trimmed = text.slice(0, limit - withoutText.length - suffix.length);
 
-    const txt = this.themeText(`${trimmed}${suffix}`, type, user);
-
-    return txt;
+    return this.themeText(`${trimmed}${suffix}`, type, user, markdown);
   };
 
   /**
@@ -431,4 +421,69 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       .filter((el) => el)
       .join(" ")
       .trim() || "someone";
+
+  /**
+   * Sends message
+   */
+  sendMessage = async (
+    text: string,
+    thumbs: string[],
+    extras?: ExtraReplyMessage,
+    postType?: string,
+    user?: UsersUserFull,
+    markdown?: boolean
+  ) => {
+    try {
+      const hasThumb =
+        !!this.template.fields.image &&
+        !!this.template.fields.images_limit &&
+        thumbs.length > 0;
+
+      if (hasThumb) {
+        const trimmed = this.trimTextForPhoto(
+          text,
+          PHOTO_CAPTION_LIMIT,
+          postType,
+          user,
+          markdown
+        );
+
+        return await this.telegram.sendPhotoToChan(
+          this.channel.id,
+          trimmed,
+          thumbs[0]!,
+          markdown,
+          extras
+        );
+      } else {
+        const trimmed = this.trimTextForPhoto(
+          text,
+          POST_TEXT_LIMIT,
+          postType,
+          user,
+          markdown
+        );
+
+        return await this.telegram.sendMessageToChan(
+          this.channel.id,
+          trimmed,
+          markdown,
+          extras
+        );
+      }
+    } catch (e) {
+      if (!markdown) {
+        throw e;
+      }
+
+      // Try to send as plain text
+
+      logger.warn(
+        `telegram: failed to send markdown, falling back to plaintext: ${e}`,
+        e
+      );
+
+      return this.sendMessage(text, thumbs, extras, postType, user, false);
+    }
+  };
 }

@@ -73,10 +73,14 @@ export class TelegramService {
   public sendMessageToChan = async (
     channel: string,
     message: string,
+    markdown?: boolean,
     extra?: ExtraReplyMessage
   ) => {
     logger.debug(`sending message "${message}" to chan "${channel}"`);
-    return await this.bot.telegram.sendMessage(channel, message, extra);
+    return await this.bot.telegram.sendMessage(channel, message, {
+      ...extra,
+      ...(markdown ? { parse_mode: "Markdown" } : {}),
+    });
   };
 
   /**
@@ -86,12 +90,14 @@ export class TelegramService {
     channel: string,
     caption: string,
     src: string,
+    markdown?: boolean,
     extra?: ExtraReplyMessage
   ) => {
     logger.debug(`sending photo message "${caption}" to chan "${channel}"`);
     return await this.bot.telegram.sendPhoto(channel, src, {
       ...extra,
       caption,
+      ...(markdown ? { parse_mode: "Markdown" } : {}),
     });
   };
 
