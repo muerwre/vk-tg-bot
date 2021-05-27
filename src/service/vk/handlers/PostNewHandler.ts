@@ -114,21 +114,12 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       thumbs.length > 0;
 
     if (hasThumb) {
-      if (this.template.fields.images_limit! <= 1) {
-        msg = await this.telegram.sendPhotoToChan(
-          this.channel.id,
-          this.trimTextForPhoto(text, PHOTO_CAPTION_LIMIT, postType, user),
-          thumbs[0]!,
-          extras
-        );
-      } else {
-        msg = (await this.telegram.sendPhotoGroupToChan(
-          this.channel.id,
-          this.trimTextForPhoto(text, PHOTO_CAPTION_LIMIT, postType, user),
-          thumbs,
-          extras
-        )) as any;
-      }
+      msg = await this.telegram.sendPhotoToChan(
+        this.channel.id,
+        this.trimTextForPhoto(text, PHOTO_CAPTION_LIMIT, postType, user),
+        thumbs[0]!,
+        extras
+      );
     } else {
       msg = await this.telegram.sendMessageToChan(
         this.channel.id,
