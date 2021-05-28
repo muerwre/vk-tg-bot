@@ -37,7 +37,13 @@ export class TelegramApi {
       return;
     }
 
-    const { body, createdAt } = await this.db.popRequest();
+    const request = await this.db.popRequest();
+    if (!request) {
+      await ctx.reply(`sorry, no logged requests yet`);
+      return next();
+    }
+
+    const { body, createdAt } = request;
     const source = JSON.stringify(body, null, 2);
 
     await ctx.replyWithDocument(
