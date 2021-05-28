@@ -5,10 +5,15 @@ import { PostgresDB } from "../../service/db/postgres";
 import { Readable } from "stream";
 
 export class TelegramApi {
-  constructor(private telegram: TelegramService, private db: PostgresDB) {}
+  constructor(
+    private telegram: TelegramService,
+    private db: PostgresDB,
+    private config: Record<any, any>
+  ) {}
 
   public listen() {
     this.telegram.bot.command("ping", TelegramApi.ping);
+    this.telegram.bot.command("config", this.dumpConfig);
     this.telegram.bot.command("pop", this.pop);
     return;
   }
@@ -42,6 +47,25 @@ export class TelegramApi {
       },
       { caption: `recorded at: ${createdAt.toLocaleString()}` }
     );
+
+    return next();
+  };
+
+  /**
+   * Pops last recorded request from vk
+   */
+  private dumpConfig = async (ctx, next) => {
+    const username = ctx?.update?.message?.from?.username;
+
+    if (!username || !this.telegram.isOwner(`@${username}`)) {
+      return;
+    }
+
+    const source = JSON.stringify(this.config, null, 2);
+    await ctx.replyWithDocument({
+      source: Readable.from(source),
+      filename: `config.txt`,
+    });
 
     return next();
   };
