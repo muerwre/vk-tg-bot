@@ -6,6 +6,7 @@ import { Template } from "../../template";
 import { Storage } from "../../db";
 import { Event } from "../../db/postgres/entities/Event";
 import logger from "../../logger";
+import safeJson from "safe-json-stringify";
 
 export class VkEventHandler<
   F extends Record<string, any> = any,
@@ -105,7 +106,7 @@ export class VkEventHandler<
     let plain = "";
 
     try {
-      plain = JSON.stringify(text);
+      plain = safeJson(text);
     } catch (e) {
       logger.warn(`createEvent: failed to stringify JSON: ${e}`, e);
       plain = text.toString();

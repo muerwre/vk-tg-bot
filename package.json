@@ -25,6 +25,7 @@
     "remark-frontmatter": "^3.0.0",
     "remark-parse-frontmatter": "^1.0.3",
     "retext": "^7.0.1",
+    "safe-json-stringify": "^1.2.0",
     "socks-proxy-agent": "^5.0.0",
     "strip-markdown": "^4.0.0",
     "telegraf": "^4.3.0",
