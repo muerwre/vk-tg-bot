@@ -15,6 +15,8 @@ export class TelegramApi {
     this.telegram.bot.command("ping", TelegramApi.ping);
     this.telegram.bot.command("config", this.dumpConfig);
     this.telegram.bot.command("pop", this.pop);
+    this.telegram.bot.command("wtf", this.wtf);
+
     return;
   }
 
@@ -71,6 +73,32 @@ export class TelegramApi {
     await ctx.replyWithDocument({
       source: Readable.from(source),
       filename: `config.txt`,
+    });
+
+    return next();
+  };
+
+  /**
+   * Sends recent logs
+   */
+  private wtf = async (ctx, next) => {
+    const username = ctx?.update?.message?.from?.username;
+
+    if (!username || !this.telegram.isOwner(`@${username}`)) {
+      return;
+    }
+
+    const logs = await this.db.popLogs();
+    if (!logs || !logs.length) {
+      await ctx.reply(`sorry, no logged errors yet`);
+      return next();
+    }
+
+    const source = JSON.stringify(logs, null, 2);
+
+    await ctx.replyWithDocument({
+      source: Readable.from(source),
+      filename: `logs-${new Date().toISOString()}.txt`,
     });
 
     return next();

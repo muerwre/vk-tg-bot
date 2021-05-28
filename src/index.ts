@@ -5,6 +5,7 @@ import { VkService } from "./service/vk";
 import { TelegramApi } from "./api/telegram";
 import { HttpApi } from "./api/http";
 import { PostgresDB } from "./service/db/postgres";
+import { PgTransport } from "./service/db/postgres/loggerTransport";
 
 async function main() {
   try {
@@ -12,6 +13,8 @@ async function main() {
 
     const db = new PostgresDB(config.postgres, config.logger);
     await db.connect();
+
+    logger.add(new PgTransport(db, { level: "warn" }));
 
     const telegram = new TelegramService(config.telegram);
     const vkService = new VkService(config.vk, telegram, config.templates, db);

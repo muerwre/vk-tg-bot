@@ -9,6 +9,7 @@ import { Event } from "./entities/Event";
 import { Post } from "./entities/Post";
 import { LoggerConfig } from "../../logger/types";
 import { Request } from "./entities/Request";
+import { Log } from "./entities/Log";
 
 const entities = [path.join(__dirname, "./entities/*")];
 
@@ -18,6 +19,7 @@ export class PostgresDB implements Storage {
   private likes!: Repository<Like>;
   private posts!: Repository<Post>;
   private requests!: Repository<Request>;
+  private logs!: Repository<Log>;
 
   constructor(
     private config: PostgresConfig,
@@ -41,6 +43,7 @@ export class PostgresDB implements Storage {
     this.likes = this.connection.getRepository(Like);
     this.posts = this.connection.getRepository(Post);
     this.requests = this.connection.getRepository(Request);
+    this.logs = this.connection.getRepository(Log);
 
     logger.info(`db connected to ${this.config.uri}`);
   };
@@ -149,6 +152,27 @@ export class PostgresDB implements Storage {
       skip,
     });
     return requests[0];
+  };
+
+  insertLog = async (
+    level: string,
+    message: string,
+    body: Record<any, any>
+  ) => {
+    return this.logs.save({ message, level, body });
+  };
+
+  /**
+   * Returns last request with shift
+   */
+  popLogs = async (take: number = 20, skip: number = 0) => {
+    const requests = await this.logs.find({
+      order: { createdAt: "DESC" },
+      take,
+      skip,
+    });
+
+    return requests.reverse();
   };
 
   healthcheck = async () => {
