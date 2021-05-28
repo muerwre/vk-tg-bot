@@ -9,7 +9,7 @@ import { vkEventToHandler } from "./handlers";
 import { TelegramService } from "../telegram";
 import { Template } from "../template";
 import { TemplateConfig } from "../../config/types";
-import { Storage } from "../db";
+import { PostgresDB } from "../db/postgres";
 
 /**
  * Service to handle VK to Telegram interactions
@@ -26,7 +26,7 @@ export class VkService {
     private config: VkConfig,
     private telegram: TelegramService,
     private templates: TemplateConfig,
-    private db: Storage
+    private db: PostgresDB
   ) {
     if (!config.groups.length) {
       throw new Error("No vk groups to handle. Specify them in config");
@@ -62,6 +62,8 @@ export class VkService {
       const group = this.groups[groupId];
       const eventId = body?.event_id;
       const type = body?.type;
+
+      await this.db.insertRequest(body);
 
       if (!groupId || !has(groupId, groups) || !has(groupId, this.instances)) {
         logger.warn(`vk received unknown call`, { body });

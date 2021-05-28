@@ -16,7 +16,7 @@ async function main() {
     const telegram = new TelegramService(config.telegram);
     const vkService = new VkService(config.vk, telegram, config.templates, db);
 
-    const telegramApi = new TelegramApi(telegram);
+    const telegramApi = new TelegramApi(telegram, db);
     telegramApi.listen();
 
     await telegram.start();

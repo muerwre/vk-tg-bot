@@ -2,6 +2,7 @@ http:
   port: 80
 telegram:
   # Get it from bot father
+  owners: []
   key: ''
   webhook:
     url: https://something.org/webhook

@@ -6,7 +6,11 @@ const webhookValidationSchema = object().optional().shape({
   enabled: boolean(),
 });
 
-export const telegramConfigSchema = yup.object().required().shape({
-  key: yup.string().required(),
-  webhook: webhookValidationSchema,
-});
+export const telegramConfigSchema = yup
+  .object()
+  .required()
+  .shape({
+    key: yup.string().required(),
+    owners: yup.array().of(yup.string().required()),
+    webhook: webhookValidationSchema,
+  });

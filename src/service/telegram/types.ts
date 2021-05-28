@@ -5,5 +5,6 @@ export interface WebhookConfig {
 
 export interface TelegramConfig {
   key: string;
+  owners?: string[];
   webhook: WebhookConfig;
 }

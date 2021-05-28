@@ -1,12 +1,15 @@
 import { TelegramService } from "../../service/telegram";
 import axios from "axios";
 import logger from "../../service/logger";
+import { PostgresDB } from "../../service/db/postgres";
+import { Readable } from "stream";
 
 export class TelegramApi {
-  constructor(private telegram: TelegramService) {}
+  constructor(private telegram: TelegramService, private db: PostgresDB) {}
 
   public listen() {
     this.telegram.bot.command("ping", TelegramApi.ping);
+    this.telegram.bot.command("pop", this.pop);
     return;
   }
 
@@ -18,6 +21,30 @@ export class TelegramApi {
       "CAACAgIAAxkBAAIB6F82KSeJBEFer895bb7mFI7_GzYoAAISAAOwODIrOXeFNb5v4aEaBA"
     );
   }
+
+  /**
+   * Pops last recorded request from vk
+   */
+  private pop = async (ctx, next) => {
+    const username = ctx?.update?.message?.from?.username;
+
+    if (!username || !this.telegram.isOwner(`@${username}`)) {
+      return;
+    }
+
+    const { body, createdAt } = await this.db.popRequest();
+    const source = JSON.stringify(body, null, 2);
+
+    await ctx.replyWithDocument(
+      {
+        source: Readable.from(source),
+        filename: `debug-${createdAt.toISOString()}.txt`,
+      },
+      { caption: `recorded at: ${createdAt.toLocaleString()}` }
+    );
+
+    return next();
+  };
 
   /**
    * Probes webhook url and falls back to polling mode on error

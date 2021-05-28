@@ -149,4 +149,13 @@ export class TelegramService {
       throw e;
     }
   };
+
+  /**
+   * Checks if user is owner
+   */
+  public isOwner = (username: string) => {
+    return (
+      !!username && !!this.props.owners && this.props.owners.includes(username)
+    );
+  };
 }
