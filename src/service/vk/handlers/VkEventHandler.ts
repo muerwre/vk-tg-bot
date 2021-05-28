@@ -102,13 +102,26 @@ export class VkEventHandler<
     tgMessageId: number,
     text: Record<any, any>
   ) => {
-    return await this.db.createEvent(
-      this.type,
-      id,
-      this.group.id,
-      this.channel.id,
-      tgMessageId,
-      text
-    );
+    let plain = "";
+
+    try {
+      plain = JSON.stringify(text);
+    } catch (e) {
+      logger.warn(`createEvent: failed to stringify JSON: ${e}`, e);
+      plain = text.toString();
+    }
+
+    try {
+      return await this.db.createEvent(
+        this.type,
+        id,
+        this.group.id,
+        this.channel.id,
+        tgMessageId,
+        { event: plain }
+      );
+    } catch (e) {
+      logger.warn("createEvent error", e);
+    }
   };
 }

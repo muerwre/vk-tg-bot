@@ -115,11 +115,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       this.channel.markdown
     );
 
-    const event = await this.createEvent(
-      id,
-      msg.message_id,
-      context.wall.toJSON()
-    );
+    const event = await this.createEvent(id, msg.message_id, context);
 
     await this.db.createPost(
       event!.id,
