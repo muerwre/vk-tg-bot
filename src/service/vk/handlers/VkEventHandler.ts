@@ -36,12 +36,16 @@ export class VkEventHandler<
    * @param id
    */
   protected getUserByID = async (id: string) => {
-    const users = await this.instance.api.users.get({
-      user_ids: [id],
-      fields: ["sex"],
-    });
+    try {
+      const users = await this.instance.api.users.get({
+        user_ids: [id],
+        fields: ["sex"],
+      });
 
-    return users[0];
+      return users[0];
+    } catch (e) {
+      return undefined;
+    }
   };
 
   /**

@@ -13,7 +13,7 @@ interface Fields {
 }
 
 interface Values {
-  user: UsersUserFull;
+  user?: UsersUserFull;
   group: ConfigGroup;
   text: string;
 }
@@ -29,9 +29,10 @@ export class MessageNewHandler extends VkEventHandler<Fields, Values> {
     }
 
     const user = await this.getUserByID(String(context.senderId));
+    const { first_name = "[unknown]", last_name = "[unknown]" } = user || {};
 
     logger.info(
-      `vk, group ${this.group.name} received message from ${user.first_name} ${user.last_name}: "${context.text}"`
+      `vk, group ${this.group.name} received message from ${first_name} ${last_name}: "${context.text}"`
     );
 
     const parsed = this.template.theme(
@@ -47,7 +48,7 @@ export class MessageNewHandler extends VkEventHandler<Fields, Values> {
       disable_web_page_preview: true,
     };
 
-    this.appendButtons(extras, user.id);
+    this.appendButtons(extras, user?.id);
 
     await this.telegram.sendMessageToChan(
       this.channel.id,
@@ -62,8 +63,8 @@ export class MessageNewHandler extends VkEventHandler<Fields, Values> {
   /**
    * Appending buttons (if needed) by mutating original extras
    */
-  private appendButtons = (extras: ExtraReplyMessage, userId: number) => {
-    if (!this.template?.fields?.buttons?.includes("link")) {
+  private appendButtons = (extras: ExtraReplyMessage, userId?: number) => {
+    if (!userId || !this.template?.fields?.buttons?.includes("link")) {
       return;
     }
 

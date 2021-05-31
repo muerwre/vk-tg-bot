@@ -9,7 +9,7 @@ import { ExtraReplyMessage } from "telegraf/typings/telegram-types";
 interface Fields {}
 
 interface Values {
-  user: UsersUserFull;
+  user?: UsersUserFull;
   group: ConfigGroup;
   isJoined: boolean;
   isLeave: boolean;
@@ -24,9 +24,10 @@ export class JoinLeaveHandler extends VkEventHandler<Fields, Values> {
     const user = await this.getUserByID(String(context.userId));
     const dir = context.isJoin ? "joined" : "left";
     const count = await this.getMembersCount();
+    const { first_name = "[unknown]", last_name = "[unknown]" } = user || {};
 
     logger.debug(
-      `vk, group ${this.group.name}: ${user.first_name} ${user.last_name} ${dir} the group`
+      `vk, group ${this.group.name}: ${first_name} ${last_name} ${dir} the group`
     );
 
     const parsed = this.template.theme(
