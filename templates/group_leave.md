@@ -1,4 +1,5 @@
 ---
+    silent: true
 ---
 {{!-- 
     use handlebars template here

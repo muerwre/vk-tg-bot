@@ -6,7 +6,9 @@ import { UsersUserFull } from "vk-io/lib/api/schemas/objects";
 import { ConfigGroup } from "../types";
 import { ExtraReplyMessage } from "telegraf/typings/telegram-types";
 
-interface Fields {}
+interface Fields {
+  silent?: boolean
+}
 
 interface Values {
   user?: UsersUserFull;
@@ -43,6 +45,7 @@ export class JoinLeaveHandler extends VkEventHandler<Fields, Values> {
 
     const extras: ExtraReplyMessage = {
       disable_web_page_preview: true,
+      disable_notification: !!this.template.fields.silent,
     };
 
     await this.telegram.sendMessageToChan(
