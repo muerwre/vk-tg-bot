@@ -18,7 +18,6 @@ import Composer from "telegraf";
 import CallbackQueryUpdate = Update.CallbackQueryUpdate;
 import { Template } from "../../template";
 import { getAttachment } from "../../../utils/attachment";
-import PhotoMessage = Message.PhotoMessage;
 
 type Button = "links" | "likes" | "more";
 type UrlPrefix = string;
