@@ -54,7 +54,7 @@ steps:
     image: appleboy/drone-ssh
     when:
       branch:
-        - master
+        - never
     environment:
       BUILD_PATH:
         from_secret: build_path
