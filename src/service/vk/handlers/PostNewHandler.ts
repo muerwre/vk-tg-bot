@@ -363,17 +363,16 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
     type?: string,
     user?: UsersUserFull,
     markdown?: boolean
-  ): string => {
-    return this.template.theme(
+  ) =>
+    this.template.theme(
       {
         user,
         group: this.group,
         type,
-        text: Template.cleanText(text),
+        text: Template.cleanText(text, markdown),
       },
       markdown
     );
-  };
 
   /**
    * Calculates, how much should we cut off the text to match photo caption limitations
@@ -384,7 +383,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
     type?: string,
     user?: UsersUserFull,
     markdown?: boolean
-  ): string => {
+  ) => {
     const withText = this.themeText(text, type, user, markdown);
     const limit = this.template.fields.char_limit
       ? Math.min(this.template.fields.char_limit, maxChars)
@@ -410,7 +409,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
   /**
    * Returns fullname from user of update callback
    */
-  getNameFromContext = (from: User): string =>
+  getNameFromContext = (from: User) =>
     [from?.first_name, from?.last_name, from.username && `(@${from.username})`]
       .filter((el) => el)
       .join(" ")

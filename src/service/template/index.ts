@@ -9,6 +9,7 @@ import path from "path";
 import hb from "handlebars";
 import strip from "strip-markdown";
 import { VFileCompatible } from "vfile";
+import transformMDLinks from "../../utils/transformMDLinks";
 
 const removeFrontmatter = () => (tree) => {
   tree.children = tree.children.filter((item) => item.type !== "yaml");
@@ -50,7 +51,8 @@ export class Template<
   }
 
   /**
-   * Themes the template with values
+   * Themes the template with values, removes markdown from template.
+   * NOTE: text, that we'll insert into template, won't be used here
    */
   public theme = (values: V, markdown?: boolean) => {
     const processor = unified()
@@ -81,13 +83,17 @@ export class Template<
     });
   }
 
-  public static cleanText(text: string) {
-    return unified()
-      .use(stringify)
-      .use(parser)
-      .use(strip)
-      .processSync(text)
-      .contents.toString();
+  /** Cleans text from markdown, but transforms links to MD if needed */
+  public static cleanText(text: string, markdown?: boolean) {
+    const processor = unified().use(stringify).use(parser).use(strip);
+
+    const output = processor.processSync(text).contents.toString();
+
+    if (markdown) {
+      return transformMDLinks(output);
+    }
+
+    return output;
   }
 }
 
