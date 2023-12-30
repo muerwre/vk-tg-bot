@@ -162,12 +162,12 @@ export class TelegramService {
   };
 
   public hears = (
-    what: string | RegExp,
+    command: string,
     callback: (
       text: string
     ) => string | Promise<string | undefined> | undefined | void
   ) =>
-    this.bot.hears(what, async (ctx) => {
+    this.bot.command(command, async (ctx) => {
       let text: string | void | undefined = "%% not received %%";
 
       try {
@@ -191,7 +191,7 @@ export class TelegramService {
         ctx.reply(text, { parse_mode: "MarkdownV2" });
       } catch (error) {
         console.warn(
-          `error replying to ${what} (${ctx.update.message.text}) with message "${text}"`,
+          `error replying to ${command} (${ctx.update.message.text}) with message "${text}"`,
           error
         );
       }

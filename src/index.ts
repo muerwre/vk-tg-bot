@@ -30,7 +30,7 @@ async function main() {
     await httpApi.listen();
     await telegramApi.probe();
 
-    telegram.hears(/\/roll(.*)/, roll);
+    telegram.hears("roll", roll);
 
     logger.info("bot successfully started");
   } catch (e) {
