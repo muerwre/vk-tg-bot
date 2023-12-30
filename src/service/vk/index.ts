@@ -66,7 +66,7 @@ export class VkService {
       await this.db.insertRequest(body);
 
       if (!groupId || !has(groupId, groups) || !has(groupId, this.instances)) {
-        logger.warn(`vk received unknown call`, { body });
+        logger.warn(`vk received unknown call`, body);
         res.sendStatus(200);
         return;
       }

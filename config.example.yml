@@ -15,7 +15,7 @@ vk:
   # Default path for POST requests from VK api
   endpoint: /
   groups: []
-templates: # (required)
+templates:
   message_new: templates/message_new.md
   wall_post_new: templates/post_new.md
   group_join: templates/group_join.md

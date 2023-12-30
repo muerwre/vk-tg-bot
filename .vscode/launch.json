@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch index.ts",
+      "type": "node",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "request": "launch",
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "args": ["${workspaceFolder}/src/index.ts", "--config=./config.yml"],
+      "outputCapture": "std"
+    }
+  ]
+}

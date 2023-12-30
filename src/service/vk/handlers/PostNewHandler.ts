@@ -7,17 +7,16 @@ import { ExtraReplyMessage } from "telegraf/typings/telegram-types";
 import {
   InlineKeyboardButton,
   InlineKeyboardMarkup,
-  Message,
   Update,
   User,
 } from "typegram";
-import { keys } from "ramda";
+import { keys } from "lodash";
 import { extractURLs } from "../../../utils/extract";
 import logger from "../../logger";
 import Composer from "telegraf";
-import CallbackQueryUpdate = Update.CallbackQueryUpdate;
 import { Template } from "../../template";
 import { getAttachment } from "../../../utils/attachment";
+import CallbackQueryUpdate = Update.CallbackQueryUpdate;
 
 type Button = "links" | "likes" | "more";
 type UrlPrefix = string;

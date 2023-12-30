@@ -1,6 +1,6 @@
 import { createLogger, format, transports } from "winston";
 import prepareConfig from "../../config";
-import { keys } from "ramda";
+import { keys } from "lodash";
 
 const config = prepareConfig();
 

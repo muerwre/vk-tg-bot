@@ -38,11 +38,14 @@ export class Template<
         .use(removeFrontmatter)
         .use(parser);
 
-      this.file = toVFile.readSync(path.join(__dirname, "../../", filename));
+      const dir =
+        process.env.NODE_ENV === "development" ? "../../../" : "../../";
+
+      this.file = toVFile.readSync(path.join(__dirname, dir, filename));
       const result = processor.processSync(this.file);
       this.fields = result.data as F;
     } catch (e) {
-      throw new Error(`Template: ${e.toString()}`);
+      throw new Error(`Template: ${e?.toString()}`);
     }
   }
 
