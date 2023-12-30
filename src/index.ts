@@ -6,6 +6,7 @@ import { TelegramApi } from "./api/telegram";
 import { HttpApi } from "./api/http";
 import { PostgresDB } from "./service/db/postgres";
 import { PgTransport } from "./service/db/postgres/loggerTransport";
+import { roll } from "./commands/roll";
 
 async function main() {
   try {
@@ -29,9 +30,11 @@ async function main() {
     await httpApi.listen();
     await telegramApi.probe();
 
+    telegram.hears(/\/roll(.*)/, roll);
+
     logger.info("bot successfully started");
   } catch (e) {
-    logger.error(`FATAL EXCEPTION ${e.message}`);
+    logger.error(`FATAL EXCEPTION ${e}`);
   }
 }
 

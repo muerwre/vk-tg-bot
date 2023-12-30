@@ -8,6 +8,8 @@ import { ExtraReplyMessage } from "telegraf/typings/telegram-types";
 
 // import SocksProxyAgent from 'socks-proxy-agent';
 
+const maxMessageAge = 3 * 60e3; // skip messages older than this seconds
+
 export class TelegramService {
   public readonly bot: Telegraf;
   public readonly webhook: WebhookConfig = {};
@@ -18,7 +20,7 @@ export class TelegramService {
       telegram: {
         webhookReply: true,
         apiMode: "bot",
-        // agent, // TODO: add proxy support
+        // agent, // TODO: add proxy support if they block it
       },
     };
 
@@ -158,4 +160,40 @@ export class TelegramService {
       !!username && !!this.props.owners && this.props.owners.includes(username)
     );
   };
+
+  public hears = (
+    what: string | RegExp,
+    callback: (
+      text: string
+    ) => string | Promise<string | undefined> | undefined | void
+  ) =>
+    this.bot.hears(what, async (ctx) => {
+      let text: string | void | undefined = "%% not received %%";
+
+      try {
+        const age = Date.now() - ctx.message.date * 1000;
+        const message = ctx.update.message.text;
+
+        if (age > maxMessageAge) {
+          console.warn(
+            `skipped message "${message}", since its age ${age / 1000} seconds`
+          );
+
+          return;
+        }
+
+        text = await callback(message);
+
+        if (!text) {
+          return;
+        }
+
+        ctx.reply(text, { parse_mode: "MarkdownV2" });
+      } catch (error) {
+        console.warn(
+          `error replying to ${what} (${ctx.update.message.text}) with message "${text}"`,
+          error
+        );
+      }
+    });
 }
