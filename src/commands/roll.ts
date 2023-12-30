@@ -86,7 +86,7 @@ const getRoute = async (
 
 export const roll = async (text: string) => {
   try {
-    const parts = text.match(/^\/roll\s?(\d+)?[-\s,]?(\d+)?$/);
+    const parts = text.match(/^\/roll\s?(\d+)?[-\s,]{0,3}(\d+)?$/);
     const result = await getRoute(parseVal(parts?.[1]), parseVal(parts?.[2]));
 
     if (!result || !result?.id) {
