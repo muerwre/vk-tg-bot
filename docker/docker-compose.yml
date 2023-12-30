@@ -1,36 +1,18 @@
-version: '3.7'
+# Docker-compose for dev purposes only
+version: "3.7"
 services:
   db:
     restart: always
-    container_name: bot-${DRONE_BRANCH}__db
+    container_name: bot__db
     image: postgres:11-alpine
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: bot
+    ports:
+      - "5432:5432"
     volumes:
       - bot-db:/var/lib/postgresql/data
       - /etc/localtime:/etc/localtime:ro
-  app:
-    container_name: bot-${DRONE_BRANCH}
-    restart: always
-    pull_policy: always
-    environment:
-      PORT: 80
-    image: ${DOCKER_REPO}:${DRONE_BRANCH}
-    ports:
-      - ${EXPOSE}:80
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ${CONFIG_PATH}:/etc/bot/config.yml:ro
-      - ${CONFIG_PATH}:/app/dist/common:ro
-    entrypoint: ./wait-for-it.sh -t 90 db:5432 -- node ./index.js --config /etc/bot/config.yml
-    depends_on:
-      - db
-    healthcheck:
-      test: [ "CMD-SHELL", "curl -f http://localhost || kill -s 2 1" ]
-      interval: 30m
-      timeout: 1m
-      start_period: 5m
 volumes:
   bot-db:

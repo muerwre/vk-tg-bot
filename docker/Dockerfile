@@ -12,5 +12,6 @@ RUN yarn build
 WORKDIR /app/dist
 COPY ./docker/wait-for-it.sh .
 
-EXPOSE ${EXPOSE}
+EXPOSE 80
+
 CMD ["node", "./index.js"]
