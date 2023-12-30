@@ -13,12 +13,18 @@ const data = fs.readFileSync(
   "utf8"
 );
 
-const userConfig = yaml.load(data) as Config;
+const userConfig = yaml.load<Config>(data);
 
 const config =
   (userConfig && merge(defaultConfig, userConfig)) || defaultConfig;
 
 export default function prepareConfig() {
   validateConfig(config);
+
+  config.telegram.templates = {
+    help: config.templates.help,
+    help_admin: config.templates.help_admin,
+  };
+
   return config;
 }

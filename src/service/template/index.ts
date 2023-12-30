@@ -16,10 +16,10 @@ const removeFrontmatter = () => (tree) => {
 };
 
 export class Template<
-  F extends Record<string, any>,
-  V extends Record<string, any>
+  Fields extends Record<string, any>,
+  Values extends Record<string, any>
 > {
-  public fields: F = {} as F;
+  public fields: Fields = {} as Fields;
   public template: string = "";
 
   private readonly file: VFileCompatible = "";
@@ -44,7 +44,7 @@ export class Template<
 
       this.file = toVFile.readSync(path.join(__dirname, dir, filename));
       const result = processor.processSync(this.file);
-      this.fields = result.data as F;
+      this.fields = result.data as Fields;
     } catch (e) {
       throw new Error(`Template: ${e?.toString()}`);
     }
@@ -54,7 +54,7 @@ export class Template<
    * Themes the template with values, removes markdown from template.
    * NOTE: text, that we'll insert into template, won't be used here
    */
-  public theme = (values: V, markdown?: boolean) => {
+  public theme = (values: Values, markdown?: boolean) => {
     const processor = unified()
       .use(stringify)
       .use(frontmatter)

@@ -33,7 +33,7 @@ const parseVal = (val?: string) => {
   return parsed;
 };
 
-const escape = (val?: string) => val && val.replace(/([-.\[\]])/g, "\\$1");
+const escape = (val?: string) => val && val.replace(/([-.\[\]\(\)])/g, "\\$1");
 const deviate = (max: number, factor: number) => [
   Math.round(max * (1 - factor)),
   Math.round(max * (1 + factor)),
@@ -86,7 +86,7 @@ const getRoute = async (
 
 export const roll = async (text: string) => {
   try {
-    const parts = text.match(/^\/roll\s?(\d+)?[-\s]?(\d+)?$/);
+    const parts = text.match(/^\/roll\s?(\d+)?[-\s,]?(\d+)?$/);
     const result = await getRoute(parseVal(parts?.[1]), parseVal(parts?.[2]));
 
     if (!result || !result?.id) {

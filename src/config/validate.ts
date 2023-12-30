@@ -11,6 +11,8 @@ export const templateConfigSchema = object().required().shape({
   wall_post_new: string().required(),
   group_join: string().required(),
   group_leave: string().required(),
+  help: string().optional(),
+  help_admin: string().optional(),
 });
 
 export const templateOptionalSchema = object().shape({

@@ -5,6 +5,7 @@ import { Response } from "express";
 import { InputMediaPhoto, Update } from "typegram";
 import loggerTgMiddleware from "../logger/tg";
 import { ExtraReplyMessage } from "telegraf/typings/telegram-types";
+import { Template } from "../template";
 
 // import SocksProxyAgent from 'socks-proxy-agent';
 
@@ -13,6 +14,9 @@ const maxMessageAge = 3 * 60e3; // skip messages older than this seconds
 export class TelegramService {
   public readonly bot: Telegraf;
   public readonly webhook: WebhookConfig = {};
+
+  protected helpTemplate: Template<{}, {}> | undefined;
+  protected adminHelpTemplate: Template<{}, {}> | undefined;
 
   constructor(private props: TelegramConfig) {
     // const agent = (CONFIG.PROXY && new SocksProxyAgent(CONFIG.PROXY)) || null;
@@ -29,6 +33,14 @@ export class TelegramService {
     this.bot = new Telegraf(props.key, options);
     this.bot.use(loggerTgMiddleware);
 
+    this.helpTemplate = props.templates?.help
+      ? new Template(props.templates?.help)
+      : undefined;
+
+    this.adminHelpTemplate = props.templates?.help_admin
+      ? new Template(props.templates?.help_admin)
+      : undefined;
+
     process.once("SIGINT", () => this.stop("SIGINT"));
     process.once("SIGTERM", () => this.stop("SIGTERM"));
   }
@@ -40,6 +52,18 @@ export class TelegramService {
    * Connects to telegram
    */
   public async start() {
+    if (!this.helpTemplate) {
+      console.warn(
+        "No help template specified, check templates.help in config"
+      );
+    }
+
+    if (!this.adminHelpTemplate) {
+      console.warn(
+        "No admin help template specified, check templates.help_admin in config"
+      );
+    }
+
     if (this.isWebhookEnabled) {
       await this.bot.telegram
         .deleteWebhook()
@@ -196,4 +220,16 @@ export class TelegramService {
         );
       }
     });
+
+  public getHelpMessage = (forOwner?: boolean) => {
+    const template = forOwner
+      ? this.adminHelpTemplate ?? this.helpTemplate
+      : this.helpTemplate;
+
+    if (!template) {
+      return;
+    }
+
+    return template?.theme({});
+  };
 }

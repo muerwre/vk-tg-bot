@@ -16,6 +16,8 @@ export class TelegramApi {
     this.telegram.bot.command("config", this.dumpConfig);
     this.telegram.bot.command("pop", this.pop);
     this.telegram.bot.command("wtf", this.wtf);
+    this.telegram.bot.command("help", this.help);
+    this.telegram.bot.command("start", this.help);
 
     return;
   }
@@ -100,6 +102,22 @@ export class TelegramApi {
       source: Readable.from(source),
       filename: `logs-${new Date().toISOString()}.txt`,
     });
+
+    return next();
+  };
+
+  /**
+   * Sends recent logs
+   */
+  private help = async (ctx, next) => {
+    const username = ctx?.update?.message?.from?.username;
+    const isOwner = !!username && this.telegram.isOwner(`@${username}`);
+
+    const message = this.telegram.getHelpMessage(isOwner);
+    if (!message) {
+      console.warn("No templates for help found, skipping");
+    }
+    await ctx.reply(message);
 
     return next();
   };

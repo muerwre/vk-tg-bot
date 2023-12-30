@@ -16,6 +16,8 @@ export const defaultConfig: Config = {
     groups: [],
   },
   templates: {
+    help: "templates/help.md",
+    help_admin: "templates/help_admin.md",
     message_new: "templates/message_new.md",
     wall_post_new: "templates/post_new.md",
     group_join: "templates/group_join.md",
