@@ -9,14 +9,14 @@ export interface Storage {
     tgMessageId: number,
     groupId: number,
     channel: string
-  ): Promise<Event | undefined>;
-  getEventById(eventId: number): Promise<Event | undefined>;
+  ): Promise<Event | null>;
+  getEventById(eventId: number): Promise<Event | null>;
   getEventByVKEventId(
     type: VkEvent,
     eventId: number,
     groupId: number,
     channel: string
-  ): Promise<Event | undefined>;
+  ): Promise<Event | null>;
   createEvent(
     type: VkEvent,
     eventId: number,
@@ -24,7 +24,7 @@ export interface Storage {
     channel: string,
     tgMessageId: number,
     text: Record<any, any>
-  ): Promise<Event | undefined>;
+  ): Promise<Event | null>;
   createOrUpdateLike(
     messageId: number,
     channel: string,
@@ -36,12 +36,12 @@ export interface Storage {
     channel: string,
     messageId: number,
     author: number
-  ): Promise<Like | undefined>;
+  ): Promise<Like | null>;
   createPost(
     eventId: number,
     text: string,
     vkPostId: number
-  ): Promise<Post | undefined>;
-  findPostByEvent(eventId: number): Promise<Post | undefined>;
+  ): Promise<Post | null>;
+  findPostByEvent(eventId: number): Promise<Post | null>;
   healthcheck(): Promise<void>;
 }

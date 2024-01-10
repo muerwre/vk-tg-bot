@@ -22,6 +22,9 @@ templates:
   wall_post_new: templates/post_new.md
   group_join: templates/group_join.md
   group_leave: templates/group_leave.md
+calendar:
+  keyFile: # key.json
+  timezone:
 #  groups:
 #    - id: 0
 #      name: 'Group name'
@@ -29,6 +32,9 @@ templates:
 #      secretKey: 'groupSecretKey'
 #      apiKey: 'callbackApiKey'
 #      post_types: ['post','copy','reply','postpone','suggest']
+#      calendar: 
+#        id: abcd@group.calendar.google.com
+#        enabled: true
 #      templates: # group's custom templates (optional)
 #        message_new: templates/custom/message_new.md
 #      channels:

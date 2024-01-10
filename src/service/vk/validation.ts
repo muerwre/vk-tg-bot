@@ -1,6 +1,7 @@
 import * as yup from "yup";
 import { VkConfig, VkEvent } from "./types";
 import { templateOptionalSchema } from "../../config/validate";
+import { calendarGroupConfigValidator } from "../calendar/config";
 
 const vkChannelEventSchema = yup.string().oneOf(Object.values(VkEvent));
 
@@ -34,6 +35,7 @@ export const vkConfigSchema = yup
           apiKey: yup.string().required(),
           channels: yup.array().of(vkChannelSchema),
           templates: templateOptionalSchema,
+          calendar: calendarGroupConfigValidator.optional(),
         })
       ),
   });

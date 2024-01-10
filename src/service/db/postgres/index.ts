@@ -55,10 +55,12 @@ export class PostgresDB implements Storage {
     channel: string
   ) => {
     return await this.events.findOne({
-      type,
-      tgMessageId,
-      vkGroupId,
-      channel,
+      where: {
+        type,
+        tgMessageId,
+        vkGroupId,
+        channel,
+      },
     });
   };
 
@@ -69,15 +71,19 @@ export class PostgresDB implements Storage {
     channel: string
   ) => {
     return await this.events.findOne({
-      type,
-      vkEventId,
-      vkGroupId,
-      channel,
+      where: {
+        type,
+        vkEventId,
+        vkGroupId,
+        channel,
+      },
     });
   };
   getEventById = async (id: number) => {
     return await this.events.findOne({
-      id,
+      where: {
+        id,
+      },
     });
   };
 
@@ -109,14 +115,18 @@ export class PostgresDB implements Storage {
 
   getLikeBy = async (channel, messageId, author) => {
     return this.likes.findOne({
-      channel,
-      messageId,
-      author,
+      where: {
+        channel,
+        messageId,
+        author,
+      },
     });
   };
 
   createOrUpdateLike = async (messageId, channel, author, text) => {
-    const like = await this.likes.findOne({ channel, author, messageId });
+    const like = await this.likes.findOne({
+      where: { channel, author, messageId },
+    });
 
     if (like) {
       return await this.likes.save({ ...like, text });
@@ -131,7 +141,7 @@ export class PostgresDB implements Storage {
   };
 
   findPostByEvent = async (eventId: number) => {
-    return this.posts.findOne({ eventId });
+    return this.posts.findOne({ where: { eventId } });
   };
 
   createPost = async (eventId: number, text: string, vkPostId: number) => {

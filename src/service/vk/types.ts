@@ -1,6 +1,7 @@
 import { API, Upload, Updates } from "vk-io";
 import { WallPostType } from "vk-io/lib/api/schemas/objects";
 import { TemplateConfig } from "../../config/types";
+import { CalendarGroupConfig } from "../calendar/config";
 
 export interface VkConfig extends Record<string, any> {
   groups: ConfigGroup[];
@@ -15,6 +16,7 @@ export interface ConfigGroup {
   apiKey: string;
   channels: GroupChannel[];
   templates: Partial<TemplateConfig>;
+  calendar?: Partial<CalendarGroupConfig>;
 }
 
 export interface GroupChannel {
@@ -36,4 +38,15 @@ export interface GroupInstance {
   api: API;
   upload: Upload;
   updates: Updates;
+}
+
+export interface Calendar {
+  createEvent: (
+    calendarId: string,
+    start: Date,
+    end: Date,
+    summary: string,
+    description: string,
+    eventId: string
+  ) => Promise<void>;
 }

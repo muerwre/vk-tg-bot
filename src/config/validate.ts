@@ -5,6 +5,7 @@ import { vkConfigSchema } from "../service/vk/validation";
 import { telegramConfigSchema } from "../service/telegram/validation";
 import { loggerConfigSchema } from "../service/logger/config";
 import { dbConfigValidatior } from "../service/db/postgres/validation";
+import { calendarConfigValidator } from "../service/calendar/config";
 
 export const templateConfigSchema = object().required().shape({
   message_new: string().required(),
@@ -29,6 +30,7 @@ const configSchema = object<Config>().required().shape({
   logger: loggerConfigSchema,
   templates: templateConfigSchema,
   postgres: dbConfigValidatior,
+  calendar: calendarConfigValidator.optional(),
 });
 
 export const validateConfig = (config: Config) =>

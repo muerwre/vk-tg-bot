@@ -23,4 +23,7 @@ export const defaultConfig: Config = {
     group_join: "templates/group_join.md",
     group_leave: "templates/group_leave.md",
   },
+  calendar: {
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  },
 };
