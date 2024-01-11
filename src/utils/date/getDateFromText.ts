@@ -1,5 +1,5 @@
-import { getDayMonthFromText } from "./getDayMonthFromText";
-import { getTimeFromString } from "./getTimeFromString";
+import { addYears, differenceInMonths, isBefore } from "date-fns";
+import { getDayMonthFromText, getTimeFromString } from "./getDayMonthFromText";
 
 export const getDateFromText = (
   val: string,
@@ -7,13 +7,13 @@ export const getDateFromText = (
 ): Date | undefined => {
   const text = val.toLowerCase();
 
-  const time = getTimeFromString(text);
-  if (!time) {
+  const dayMonth = getDayMonthFromText(text, createdAt);
+  if (!dayMonth) {
     return;
   }
 
-  const dayMonth = getDayMonthFromText(text, createdAt);
-  if (!dayMonth) {
+  const time = getTimeFromString(text);
+  if (!time) {
     return;
   }
 
@@ -25,18 +25,10 @@ export const getDateFromText = (
     time[1]
   );
 
-  // TODO: handle jan and feb posts from december or november
-  // if createdAt is december and date is in January or February
-  // like this:
-  // if (isBefore(date, createdAt) && differenceInMonths(addYears(date, 1), createdAt) < 3) {
-  //   return addYears(date, 1) 
-  // }
-  // if (isBefore(date, createdAt)) {
-  //   const diff = differenceInMonths(date, createdAt);
-  //   return diff > 9 && dayMonth[1] >= 10
-  //     ? addYears(date, 1)
-  //     : undefined;
-  // }
+  // handle posts written in november-december for next year's january-february
+  if (isBefore(date, createdAt) && differenceInMonths(addYears(date, 1), createdAt) < 5) {
+    return addYears(date, 1);
+  }
 
   return date;
 };

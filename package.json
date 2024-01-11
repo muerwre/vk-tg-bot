@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node ./dist/index.js",
     "dev": "NODE_ENV=dev node -r ts-node/register ./src/index.ts --config=./config.yml",
-    "build": "rm -rf ./dist && tsc && copyfiles -f ./config*.yml ./dist && copyfiles ./templates/*.md ./dist"
+    "build": "rm -rf ./dist && tsc && copyfiles -f ./config*.yml ./dist && copyfiles ./templates/*.md ./dist",
+    "test": "jest"
   },
   "dependencies": {
     "axios": "^0.21.1",
@@ -55,6 +56,8 @@
     "@types/yargs": "^16.0.1",
     "@types/yup": "^0.29.11",
     "copyfiles": "^2.4.1",
-    "prettier": "^2.2.1"
+    "jest": "^29.7.0",
+    "prettier": "^2.2.1",
+    "ts-jest": "^29.1.1"
   }
 }

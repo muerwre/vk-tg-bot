@@ -1,4 +1,4 @@
-import { addMinutes, isBefore, secondsToMilliseconds } from "date-fns";
+import { addMinutes, differenceInMonths, isBefore, secondsToMilliseconds } from "date-fns";
 import { NextMiddleware } from "middleware-io";
 import { WallPostContext } from "vk-io";
 import { getDateFromText } from "../../../utils/date/getDateFromText";
@@ -38,7 +38,7 @@ export class PostNewCalendarHandler extends VkEventHandler {
 
       const summary = getSummaryFromText(text);
 
-      const start = getDateFromText(text, createdAt);
+      const start = getDateFromText(summary, createdAt);
       if (!start) {
         logger.warn(`can't extract date from summary: ${summary}`)
         return;
@@ -49,10 +49,20 @@ export class PostNewCalendarHandler extends VkEventHandler {
         return;
       }
 
+      const diff = differenceInMonths(start, new Date());
+      if (diff > 1) {
+        logger.warn(`extracted date was too far in a future: ${start?.toISOString()}, summary was: ${summary}`)
+        return;
+      }
+
+      // TODO: event is deeply in future, like 2 months or more
+
       const end = addMinutes(start, 15);
       const description = [this.generateVkPostUrl(context.wall.id), maybeTrim(text, 512)].join('\n\n');
 
-      this.calendar?.createEvent(this.group.calendar?.id, start, end, summary, description, eventId)
+      // TODO: event exist and summary contains "отмен" --> delete post
+
+      this.calendar?.createEvent(this.group.calendar?.id, start, end, maybeTrim(summary, 96), description, eventId)
     } catch (error) {
       logger.warn('error occurred in calendar handler', error);
     } finally {
