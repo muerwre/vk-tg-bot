@@ -7,6 +7,7 @@ import { HttpApi } from "./api/http";
 import { PostgresDB } from "./service/db/postgres";
 import { PgTransport } from "./service/db/postgres/loggerTransport";
 import { roll } from "./commands/roll";
+import { setupCalendar } from "./service/calendar/setup";
 
 async function main() {
   try {
@@ -18,7 +19,27 @@ async function main() {
     logger.add(new PgTransport(db, { level: "warn" }));
 
     const telegram = new TelegramService(config.telegram);
-    const vkService = new VkService(config.vk, telegram, config.templates, db);
+    const calendar = await setupCalendar(
+      logger.warn,
+      config.calendar,
+      config.calendarKey
+    );
+
+    if (calendar) {
+      logger.info(
+        `calendar service started for ${config.calendarKey?.project_id}`
+      );
+    } else {
+      logger.warn("calendar service not started");
+    }
+
+    const vkService = new VkService(
+      config.vk,
+      telegram,
+      config.templates,
+      db,
+      calendar
+    );
 
     const telegramApi = new TelegramApi(telegram, db, config);
     telegramApi.listen();

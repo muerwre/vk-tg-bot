@@ -1,0 +1,1 @@
+export const maybeTrim = (text: string, maxChars: number) => text.length > maxChars ? `${text.slice(0, maxChars)}...` : text; 

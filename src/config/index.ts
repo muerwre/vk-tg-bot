@@ -6,6 +6,10 @@ import { validateConfig } from "./validate";
 import { getCmdArg } from "../utils/args";
 import { defaultConfig } from "./default";
 import { merge } from "lodash";
+import {
+  CalendarKeyFile,
+  calendarKeyValidator,
+} from "../service/calendar/config";
 
 const configPath = getCmdArg("config");
 const data = fs.readFileSync(
@@ -20,6 +24,18 @@ const config =
 
 export default function prepareConfig() {
   validateConfig(config);
+
+  if (config.calendar?.keyFile) {
+    try {
+      const key = JSON.parse(
+        fs.readFileSync(config.calendar?.keyFile).toString()
+      ) as CalendarKeyFile;
+      calendarKeyValidator.validateSync(key);
+      config.calendarKey = key;
+    } catch (error) {
+      console.warn("tried to parse calendar key, got error", error);
+    }
+  }
 
   config.telegram.templates = {
     help: config.templates.help,

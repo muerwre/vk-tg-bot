@@ -49,8 +49,7 @@ const PHOTO_CAPTION_LIMIT = 1000;
 const POST_TEXT_LIMIT = 4096;
 
 export class PostNewHandler extends VkEventHandler<Fields, Values> {
-  constructor(...props: any) {
-    // @ts-ignore
+  constructor(...props: ConstructorParameters<typeof VkEventHandler<Fields, Values>>) {
     super(...props);
     this.onInit();
   }

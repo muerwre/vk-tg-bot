@@ -13,10 +13,8 @@
     "baseUrl": ".",
     "paths": {},
     "lib": ["esnext"],
-    "strict": true
+    "strict": true,
+    "skipLibCheck": true
   },
-  "include": [
-    "./**/*",
-    "./custom.d.ts"
-  ]
+  "include": ["./src/index.ts", "./custom.d.ts"]
 }

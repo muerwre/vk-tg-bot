@@ -2,7 +2,7 @@ import { ConfigGroup, GroupInstance, VkConfig, VkEvent } from "./types";
 import { API, Updates, Upload } from "vk-io";
 import logger from "../logger";
 import { Request, Response } from "express";
-import { flatten, has, keys, prop } from "ramda";
+import { flatten, has, keys } from "ramda";
 import { NextFunction } from "connect";
 import { VkEventHandler } from "./handlers/VkEventHandler";
 import { vkEventToHandler } from "./handlers";
@@ -10,6 +10,7 @@ import { TelegramService } from "../telegram";
 import { Template } from "../template";
 import { TemplateConfig } from "../../config/types";
 import { PostgresDB } from "../db/postgres";
+import { CalendarService } from "../calendar";
 
 /**
  * Service to handle VK to Telegram interactions
@@ -26,7 +27,8 @@ export class VkService {
     private config: VkConfig,
     private telegram: TelegramService,
     private templates: TemplateConfig,
-    private db: PostgresDB
+    private db: PostgresDB,
+    private calendar: CalendarService | null
   ) {
     if (!config.groups.length) {
       throw new Error("No vk groups to handle. Specify them in config");
@@ -120,9 +122,11 @@ export class VkService {
     const handlers = this.setupHandlers(group, instance);
 
     handlers.forEach((channel) => {
-      keys(channel).forEach((event) => {
+      keys(channel).forEach((event: VkEvent) => {
         logger.info(` - ${group.name} listens for ${String(event)}`);
-        updates.on(event as any, channel[event].execute);
+        channel[event].forEach((handler) => {
+          updates.on(event as any, handler.execute);
+        });
       });
     });
 
@@ -135,27 +139,31 @@ export class VkService {
   private setupHandlers(
     group: ConfigGroup,
     instance: GroupInstance
-  ): Record<VkEvent, VkEventHandler>[] {
+  ): Record<VkEvent, VkEventHandler[]>[] {
     return flatten(
       group.channels.map((chan) =>
         chan.events.reduce((acc, event) => {
           const template = new Template(
-            prop(event, chan?.templates) ||
-              prop(event, group?.templates) ||
-              prop(event, this.templates)
+            chan?.templates?.[event] ??
+              group?.templates?.[event] ??
+              this.templates?.[event]
           );
 
-          const handler = new vkEventToHandler[event](
-            event,
-            group,
-            chan,
-            instance,
-            this,
-            this.telegram,
-            template,
-            this.db
+          const handlers = vkEventToHandler[event]?.map(
+            (handler) =>
+              new handler(
+                event,
+                group,
+                chan,
+                instance,
+                this,
+                this.telegram,
+                template,
+                this.db,
+                this.calendar
+              )
           );
-          return { ...acc, [event]: handler };
+          return { ...acc, [event]: handlers };
         }, {} as Record<VkEvent, VkEventHandler>[])
       )
     );

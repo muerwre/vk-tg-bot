@@ -3,6 +3,7 @@ import { VkConfig, VkEvent } from "../service/vk/types";
 import { HttpConfig } from "../api/http/types";
 import { LoggerConfig } from "../service/logger/types";
 import { PostgresConfig } from "../service/db/postgres/types";
+import { CalendarConfig, CalendarKeyFile } from "src/service/calendar/config";
 
 export type TemplateConfig = Record<VkEvent, string> &
   Partial<Record<"help" | "help_admin", string>>;
@@ -14,4 +15,6 @@ export interface Config extends Record<string, any> {
   logger: LoggerConfig;
   templates: TemplateConfig;
   postgres: PostgresConfig;
+  calendar?: Partial<CalendarConfig>;
+  calendarKey?: CalendarKeyFile;
 }

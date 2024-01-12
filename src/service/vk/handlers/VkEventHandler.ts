@@ -1,10 +1,15 @@
 import { NextMiddleware } from "middleware-io";
-import { ConfigGroup, GroupChannel, GroupInstance, VkEvent } from "../types";
+import {
+  Calendar,
+  ConfigGroup,
+  GroupChannel,
+  GroupInstance,
+  VkEvent,
+} from "../types";
 import { VkService } from "../index";
 import { TelegramService } from "../../telegram";
 import { Template } from "../../template";
 import { Storage } from "../../db";
-import { Event } from "../../db/postgres/entities/Event";
 import logger from "../../logger";
 import safeJson from "safe-json-stringify";
 
@@ -20,7 +25,8 @@ export class VkEventHandler<
     protected vk: VkService,
     protected telegram: TelegramService,
     protected template: Template<F, V>,
-    protected db: Storage
+    protected db: Storage,
+    protected calendar: Calendar | null
   ) {}
 
   public execute: (
@@ -57,7 +63,7 @@ export class VkEventHandler<
   /**
    * Checks for duplicates
    */
-  getEventById = async (id?: number): Promise<Event | undefined> => {
+  getEventById = async (id?: number) => {
     if (!id) {
       return undefined;
     }
@@ -68,7 +74,7 @@ export class VkEventHandler<
   /**
    * Checks for duplicates
    */
-  getEventByVkEventId = async (id?: number): Promise<Event | undefined> => {
+  getEventByVkEventId = async (id?: number) => {
     if (!id) {
       return undefined;
     }
@@ -84,9 +90,7 @@ export class VkEventHandler<
   /**
    * Checks for duplicates
    */
-  getEventByTgMessageId = async (
-    tgMessageId?: number
-  ): Promise<Event | undefined> => {
+  getEventByTgMessageId = async (tgMessageId?: number) => {
     if (!tgMessageId) {
       return undefined;
     }
