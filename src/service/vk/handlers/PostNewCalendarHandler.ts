@@ -58,7 +58,11 @@ export class PostNewCalendarHandler extends VkEventHandler {
       // TODO: event is deeply in future, like 2 months or more
 
       const end = addMinutes(start, 15);
-      const description = [this.generateVkPostUrl(context.wall.id), maybeTrim(text, 512)].join('\n\n');
+      const description = [
+        'Пожалуйста, проверьте дату и время в посте:',
+        this.generateVkPostUrl(context.wall.id),
+        maybeTrim(text, 512),
+      ].join('\n\n');
 
       // TODO: event exist and summary contains "отмен" --> delete post
 
