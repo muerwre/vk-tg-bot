@@ -8,7 +8,7 @@ export class CalendarService {
 
   constructor(
     key: KeyFile,
-    private timeZone: string,
+    private timeZone: string, // idk, use it someday
     private log: (...vals: any) => void
   ) {
     this.auth = new google.auth.JWT(
@@ -61,11 +61,9 @@ export class CalendarService {
         description,
         start: {
           dateTime: start.toISOString(),
-          timeZone: this.timeZone,
         },
         end: {
           dateTime: end.toISOString(),
-          timeZone: this.timeZone,
         },
         iCalUID: eventId,
       },
