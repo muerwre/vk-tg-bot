@@ -1,4 +1,6 @@
 .drone.yml
 node_modules
 .idea
-**/node_modules
+dist
+.vscode
+*.test.*
