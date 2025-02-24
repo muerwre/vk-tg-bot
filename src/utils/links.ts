@@ -1,13 +1,26 @@
 import { URL } from "url";
 
 const simpleUrlRegex = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s\]]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s\]]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s\]]{2,}|www\.[a-zA-Z0-9]+\.[^\s\]]{2,})/gim;
-const weirdLongUrlRegex = /\[(.*)\|(.*)\|(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s\]]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s\]]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s\]]{2,}|www\.[a-zA-Z0-9]+\.[^\s\]]{2,})\]/g;
+
+/** Yep, that's how VK posts it's links */
+const weirdLongUrlRegex = /\[\#alias\|([^\|]+)\|([^\]]+)\]/gim;
+
+const fixUrl = (url: string) =>
+  url.startsWith("http") || !url ? url : `https://${url}`;
 
 /** Extracts URLs from text */
 export const extractURLs = (text: string): URL[] => {
-  const matches = text.match(simpleUrlRegex) || [];
+  const urls = new Set<string>();
 
-  return matches
+  text
+    .match(weirdLongUrlRegex)
+    ?.forEach((match) =>
+      urls.add(fixUrl(match.replace(weirdLongUrlRegex, "$1")))
+    );
+
+  text.match(simpleUrlRegex)?.forEach((match) => urls.add(match));
+
+  return Array.from(urls)
     .map((m) => {
       try {
         return new URL(m);
@@ -30,7 +43,10 @@ export const transformMDLinks = (value: string) =>
         return val;
       }
 
-      return `[${trimTo(args[1], 20)}](${args[2]})`;
+      const title = trimTo(args[0] ?? args[1], 20);
+      const url = fixUrl(args[1]);
+
+      return `[${title}](${url})`;
     })
     .replace(simpleUrlRegex, (val) => {
       if (val.endsWith(")")) {
