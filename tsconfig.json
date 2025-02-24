@@ -4,7 +4,7 @@
     "esModuleInterop": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "outDir": "./dist/",
+    "outDir": "./output/",
     "sourceMap": true,
     "noImplicitAny": false,
     "allowSyntheticDefaultImports": true,
