@@ -30,8 +30,11 @@ export default function prepareConfig() {
       const key = JSON.parse(
         fs.readFileSync(config.calendar?.keyFile).toString()
       ) as CalendarKeyFile;
-      calendarKeyValidator.validateSync(key);
-      config.calendarKey = key;
+
+      if (key) {
+        calendarKeyValidator.validateSync(key);
+        config.calendarKey = key;
+      }
     } catch (error) {
       console.warn("tried to parse calendar key, got error", error);
     }

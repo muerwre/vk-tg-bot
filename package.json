@@ -5,6 +5,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "environment": "docker-compose -f ./docker/docker-compose.yml up db -d",
     "start": "node ./dist/index.js",
     "dev": "NODE_ENV=dev node -r ts-node/register ./src/index.ts --config=./config.yml",
     "build": "rm -rf ./dist && tsc && copyfiles -f ./config*.yml ./dist && copyfiles ./templates/*.md ./dist",
