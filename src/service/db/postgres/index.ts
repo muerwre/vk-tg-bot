@@ -11,8 +11,6 @@ import { LoggerConfig } from "../../logger/types";
 import { Request } from "./entities/Request";
 import { Log } from "./entities/Log";
 
-const entities = [path.join(__dirname, "./entities/*")];
-
 export class PostgresDB implements Storage {
   private connection!: Connection;
   private events!: Repository<Event>;
@@ -32,9 +30,9 @@ export class PostgresDB implements Storage {
     this.connection = await createConnection({
       type: "postgres",
       url: this.config.uri,
-      entities,
       logging: this.loggerConfig.level === "debug",
       synchronize: true,
+      entities: [Event, Like, Post, Request, Log],
     });
 
     await this.connection.synchronize();
