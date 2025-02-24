@@ -12,11 +12,9 @@ RUN yarn build
 
 FROM node:18-bookworm AS runner
 
-
-COPY --from=builder /app/dist ./
-
 WORKDIR /app/dist
 
+COPY --from=builder /app/dist ./
 COPY ./docker/wait-for-it.sh .
 
 EXPOSE 80

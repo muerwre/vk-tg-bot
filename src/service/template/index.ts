@@ -9,7 +9,7 @@ import path from "path";
 import hb from "handlebars";
 import strip from "strip-markdown";
 import { VFileCompatible } from "vfile";
-import transformMDLinks from "../../utils/transformMDLinks";
+import { transformMDLinks } from "../../utils/links";
 
 const removeFrontmatter = () => (tree) => {
   tree.children = tree.children.filter((item) => item.type !== "yaml");

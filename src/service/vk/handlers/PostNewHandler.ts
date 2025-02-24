@@ -11,7 +11,7 @@ import {
   User,
 } from "typegram";
 import { keys } from "lodash";
-import { extractURLs } from "../../../utils/extract";
+import { extractURLs } from "../../../utils/links";
 import logger from "../../logger";
 import Composer from "telegraf";
 import { Template } from "../../template";

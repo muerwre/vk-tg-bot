@@ -1,4 +1,4 @@
-import { extractURLs } from "../extract";
+import { extractURLs } from "../links";
 
 describe("extractURLs", () => {
   it("extracts simple urls", () => {
