@@ -11,7 +11,7 @@ steps:
     image: plugins/docker
     when:
       branch:
-        - master
+        - never # should be master, but nevermind
     settings:
       dockerfile: docker/Dockerfile
       context: "."
