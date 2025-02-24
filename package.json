@@ -8,7 +8,7 @@
     "environment": "docker-compose -f ./docker/docker-compose.yml up db -d",
     "start": "node ./dist/index.js",
     "dev": "NODE_ENV=dev node -r ts-node/register ./src/index.ts --config=./config.yml",
-    "build": "rm -rf ./output ./dist && tsc && yarn ncc build ./output/index.js -o ./dist && rm -rf ./output && copyfiles -f ./config*.yml ./dist && copyfiles ./templates/*.md ./dist",
+    "build": "rm -rf ./output ./dist && tsc && yarn ncc build ./output/index.js -o ./dist && rm -rf ./output",
     "test": "jest"
   },
   "dependencies": {
