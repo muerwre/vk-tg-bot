@@ -25,5 +25,13 @@ describe("transformMDLinks", () => {
     ).toBe(
       "Trying out links [1234567890123456789…](https://map.vault48.org/test_abc_def_ghi) 123"
     );
+
+    expect(
+      transformMDLinks(
+        "Trying out links \\[#alias|12345678901234567890123|map.vault48.org/test_abc_def_ghi] 123"
+      )
+    ).toBe(
+      "Trying out links [1234567890123456789…](https://map.vault48.org/test_abc_def_ghi) 123"
+    );
   });
 });

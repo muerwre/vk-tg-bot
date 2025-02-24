@@ -3,7 +3,7 @@ import { URL } from "url";
 const simpleUrlRegex = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s\]]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s\]]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s\]]{2,}|www\.[a-zA-Z0-9]+\.[^\s\]]{2,})/gim;
 
 /** Yep, that's how VK posts it's links */
-const weirdLongUrlRegex = /\[\#alias\|([^\|]+)\|([^\]]+)\]/gim;
+const weirdLongUrlRegex = /(\\?)\[\#alias\|([^\|]+)\|([^\]]+)\]/gim;
 
 const fixUrl = (url: string) =>
   url.startsWith("http") || !url ? url : `https://${url}`;
@@ -15,7 +15,7 @@ export const extractURLs = (text: string): URL[] => {
   text
     .match(weirdLongUrlRegex)
     ?.forEach((match) =>
-      urls.add(fixUrl(match.replace(weirdLongUrlRegex, "$1")))
+      urls.add(fixUrl(match.replace(weirdLongUrlRegex, "$2")))
     );
 
   text.match(simpleUrlRegex)?.forEach((match) => urls.add(match));
@@ -39,12 +39,12 @@ const trimTo = (val: string, maxLength: number) =>
 export const transformMDLinks = (value: string) =>
   value
     .replace(weirdLongUrlRegex, (val, ...args) => {
-      if (args.length < 2) {
+      if (args.length < 3) {
         return val;
       }
 
-      const title = trimTo(args[0] ?? args[1], 20);
-      const url = fixUrl(args[1]);
+      const title = trimTo(args[1] ?? args[2], 20);
+      const url = fixUrl(args[2]);
 
       return `[${title}](${url})`;
     })

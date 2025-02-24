@@ -28,6 +28,15 @@ describe("extractURLs", () => {
     expect(result[0].href).toBe("https://map.vault48.org/test");
   });
 
+  it("works with that weird new VK urls without scheme (with backslash)", () => {
+    const result = extractURLs(
+      "Trying out links: \\[#alias|map.vault48.org/test|map.vault48.org/test]"
+    );
+
+    expect(result.length).toBe(1);
+    expect(result[0].href).toBe("https://map.vault48.org/test");
+  });
+
   it("deduplicates matching urls", () => {
     const result = extractURLs(
       `Trying out links: [#alias|map.vault48.org/test|map.vault48.org/test] map.vault48.org/test https://map.vault48.org/test map.vault48.org/test2 https://map.vault48.org/test3
