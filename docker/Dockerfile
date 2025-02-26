@@ -1,8 +1,8 @@
-FROM node:18-bookworm as builder
+FROM node:18-alpine as builder
 
 WORKDIR /app
 
-RUN apt update && apt install tzdata -y
+RUN apk add --no-cache tzdata
 COPY ./package.json .
 COPY ./yarn.lock .
 RUN yarn
@@ -10,7 +10,7 @@ RUN yarn
 COPY . .
 RUN yarn build
 
-FROM node:18-bookworm AS runner
+FROM node:18-alpine AS runner
 
 WORKDIR /app/dist
 
