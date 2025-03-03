@@ -15,7 +15,7 @@ export const extractURLs = (text: string): URL[] => {
   text
     .match(weirdLongUrlRegex)
     ?.forEach((match) =>
-      urls.add(fixUrl(match.replace(weirdLongUrlRegex, "$2")))
+      urls.add(fixUrl(match.replace(weirdLongUrlRegex, "$3")))
     );
 
   text.match(simpleUrlRegex)?.forEach((match) => urls.add(match));

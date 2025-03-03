@@ -52,4 +52,15 @@ describe("extractURLs", () => {
       "https://map.vault48.org/test5",
     ]);
   });
+
+  it("skipps link description", () => {
+    const result = extractURLs(
+      `Trying out links: [#alias|map.vault48.org/test3|https://map.vault48.org/test] https://map.vault48.org/test2`
+    ).map((it) => it.href);
+
+    expect(result).toEqual([
+      "https://map.vault48.org/test",
+      "https://map.vault48.org/test2",
+    ]);
+  });
 });

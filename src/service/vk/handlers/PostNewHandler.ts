@@ -47,6 +47,7 @@ type LikeCtx = Composer.Context<CallbackQueryUpdate> & { match: string[] };
 
 const PHOTO_CAPTION_LIMIT = 1000;
 const POST_TEXT_LIMIT = 4096;
+const URL_BUTTON_LIMIT = 4;
 
 export class PostNewHandler extends VkEventHandler<Fields, Values> {
   constructor(...props: ConstructorParameters<typeof VkEventHandler<Fields, Values>>) {
@@ -152,15 +153,13 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
       return;
     }
 
-    const rows = await Promise.all(
-      buttons.map((button) =>
-        this.extrasGenerators[button](text, eventId, postId)
-      )
-    );
+    const rows = await Promise.all(buttons.map((button) =>
+      this.extrasGenerators[button](text, eventId, postId)
+    ));
 
     const inline_keyboard = rows.filter(
-      (el) => el && el.length
-    ) as InlineKeyboardButton[][];
+      (el): el is InlineKeyboardButton[] => Boolean(el && el.length > 0)
+    );
 
     if (!inline_keyboard.length) {
       return;
@@ -193,6 +192,7 @@ export class PostNewHandler extends VkEventHandler<Fields, Values> {
 
         return label ? { text: links[label], url: url.toString() } : undefined;
       })
+      .slice(0, URL_BUTTON_LIMIT)
       .filter((el) => el) as InlineKeyboardButton[];
   };
 
