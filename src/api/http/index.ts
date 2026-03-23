@@ -76,7 +76,7 @@ export class HttpApi {
    */
   private healthcheck = async (req: Request, res: Response) => {
     try {
-      await Promise.all([this.telegram.healthcheck(), this.vk.healthcheck()]);
+      await Promise.all([this.telegram.healthCheck(), this.vk.healthcheck()]);
       res.sendStatus(200);
     } catch (e) {
       res.sendStatus(501);

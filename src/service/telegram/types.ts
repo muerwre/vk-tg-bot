@@ -11,4 +11,5 @@ export interface TelegramConfig {
     help?: string;
     help_admin?: string;
   };
+  proxy?: string;
 }

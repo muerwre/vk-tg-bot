@@ -13,4 +13,5 @@ export const telegramConfigSchema = yup
     key: yup.string().required(),
     owners: yup.array().of(yup.string().required()),
     webhook: webhookValidationSchema,
+    proxy: yup.string().optional().matches(/^(socks|http)/, "proxy should start with 'socks://' or 'http://'"),
   });

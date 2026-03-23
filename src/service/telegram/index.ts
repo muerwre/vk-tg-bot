@@ -1,3 +1,4 @@
+import https from 'https';
 import { TelegramConfig, WebhookConfig } from "./types";
 import { Telegraf } from "telegraf";
 import logger from "../logger";
@@ -6,12 +7,23 @@ import { InputMediaPhoto, Update } from "typegram";
 import loggerTgMiddleware from "../logger/tg";
 import { ExtraReplyMessage } from "telegraf/typings/telegram-types";
 import { Template } from "../template";
-
-// import SocksProxyAgent from 'socks-proxy-agent';
+ 
+import { SocksProxyAgent } from 'socks-proxy-agent';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 
 const maxMessageAge = 3 * 60e3; // skip messages older than this seconds
 
-export class TelegramService {
+const getAgent = (proxy: string | undefined) => {
+  if (proxy?.startsWith('socks://')) {
+    return new SocksProxyAgent(proxy);
+  } else if (proxy?.startsWith('http://')) {
+    return new HttpsProxyAgent(proxy);
+  }
+
+  return undefined; 
+}
+
+export class TelegramService { 
   public readonly bot: Telegraf;
   public readonly webhook: WebhookConfig = {};
 
@@ -19,14 +31,26 @@ export class TelegramService {
   protected adminHelpTemplate: Template<{}, {}> | undefined;
 
   constructor(private props: TelegramConfig) {
-    // const agent = (CONFIG.PROXY && new SocksProxyAgent(CONFIG.PROXY)) || null;
+    const agent = getAgent(props.proxy);
     const options: Partial<Telegraf.Options<any>> = {
       telegram: {
         webhookReply: true,
         apiMode: "bot",
-        // agent, // TODO: add proxy support if they block it
+        agent,
       },
     };
+
+    if (agent) {
+      https.get('https://api.ipify.org?format=json', { agent }, (res) => {
+        res.on('data', function (chunk) {
+          console.log('Bot is working through proxy on IP: ' + chunk);
+        });
+      });
+
+      console.log("Telegram proxy agent configured with proxy", props.proxy);
+    } else {
+      console.log('No proxy set for Telegram, connecting directly');
+    }
 
     this.webhook = props.webhook;
 
@@ -165,9 +189,9 @@ export class TelegramService {
   };
 
   /**
-   * Performs healthcheck for telegram
+   * Performs health check for telegram
    */
-  public healthcheck = async () => {
+  public healthCheck = async () => {
     try {
       await this.bot.telegram.getMe();
     } catch (e) {

@@ -6,6 +6,7 @@ export const defaultConfig: Config = {
     owners: [],
     key: "",
     webhook: { url: "", enabled: false },
+    proxy: undefined,
   },
   postgres: {
     uri: "postgres://user:password@db/bot",
